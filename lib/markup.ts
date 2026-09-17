@@ -41,6 +41,13 @@ export const MARKUP = `
     </div>
   </header>
 
+  <nav class="mobile-tabs" aria-label="Sections">
+    <button type="button" class="mobile-tab" data-view="modules">Modules</button>
+    <button type="button" class="mobile-tab active" data-view="terminal" aria-selected="true">Terminal</button>
+    <button type="button" class="mobile-tab" data-view="guide">Guide</button>
+    <button type="button" class="mobile-tab" data-action="help" title="Keyboard shortcuts">Keys</button>
+  </nav>
+
   <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-head">

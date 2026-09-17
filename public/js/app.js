@@ -399,6 +399,23 @@
     toast("Task complete! +" + gained + " XP");
   }
 
+  /* mobile tabs: single-pane views on narrow screens (no-op on desktop) */
+  var MOBILE_BREAKPOINT = 860;
+  function isNarrowScreen() {
+    return typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT;
+  }
+  function setMobileView(v) {
+    document.body.dataset.mview = v;
+    var tabs = document.querySelectorAll(".mobile-tab[data-view]");
+    Array.prototype.forEach.call(tabs, function (b) {
+      var active = b.getAttribute("data-view") === v;
+      b.classList.toggle("active", active);
+      if (active) b.setAttribute("aria-selected", "true");
+      else b.removeAttribute("aria-selected");
+    });
+    if (v === "terminal" && typeof updateBlockCursor === "function") updateBlockCursor();
+  }
+
   function setTaskFeedback(msg, good) {
     var el = document.getElementById("task-feedback");
     if (!el) return;
@@ -519,6 +536,7 @@
       if (title === mod.title) el.classList.add("active");
     });
     $cmd.focus();
+    if (isNarrowScreen()) setMobileView("terminal");
   }
 
   function renderLesson() {
@@ -564,6 +582,7 @@
     host.querySelectorAll(".example").forEach(function (el) {
       el.addEventListener("click", function () {
         $cmd.value = lesson.examples[+el.getAttribute("data-i")].cmd;
+        if (isNarrowScreen()) setMobileView("terminal");
         $cmd.focus();
         moveCaretEnd($cmd);
       });
@@ -961,6 +980,18 @@
     document.addEventListener("keydown", onGlobalKey, true);
     $paletteInput.addEventListener("input", function () { renderPalette($paletteInput.value); });
     $overlay.addEventListener("mousedown", function (e) { if (e.target === $overlay) closeOverlay(); });
+
+    var mTabs = document.querySelectorAll(".mobile-tab[data-view]");
+    Array.prototype.forEach.call(mTabs, function (b) {
+      b.addEventListener("click", function () {
+        var v = b.getAttribute("data-view");
+        setMobileView(v);
+        if (v === "terminal") $cmd.focus();
+      });
+    });
+    var mKeys = document.querySelector(".mobile-tab[data-action=\"help\"]");
+    if (mKeys) mKeys.addEventListener("click", function () { openHelp(); });
+    setMobileView("terminal");
 
     document.getElementById("btn-theme").addEventListener("click", toggleTheme);
     var tipsBtn = document.getElementById("btn-tips");

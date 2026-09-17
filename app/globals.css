@@ -135,7 +135,10 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--faint) 70%, transparent); background-clip: content-box; }
 
 /* ============================ app shell ============================ */
-#app { display: flex; flex-direction: column; height: 100vh; }
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+/* ---------- mobile tabs (hidden on desktop, shown <= 860px) ---------- */
+.mobile-tabs { display: none; }
 
 /* ---------- top bar ---------- */
 .topbar {
@@ -509,6 +512,88 @@ body.nav-mode .mode-badge { background: var(--accent); color: var(--accent-ink);
   .mono-readout .mstat:nth-of-type(5), .mono-readout .mstat:nth-of-type(7) { display: none; }
   .mono-readout .msep:nth-of-type(6), .mono-readout .msep:nth-of-type(8) { display: none; }
   .brand-sub { display: none; }
+}
+
+/* ---------- tablet landscape / small laptops ---------- */
+@media (max-width: 1024px) {
+  .topbar { gap: 16px; padding: 10px 16px 8px; }
+  .brand { min-width: 0; }
+  .lesson-panel { width: 300px; flex-basis: 300px; padding: 22px 20px 32px; }
+  .terminal { padding: 18px; }
+}
+
+/* ---------- phones + portrait tablets: tabbed single-pane ---------- */
+@media (max-width: 860px) {
+  .topbar { flex-wrap: wrap; gap: 8px 12px; min-height: 0; padding: 10px 12px; }
+  .brand { min-width: 0; gap: 9px; }
+  .logo, .logo svg { width: 30px; height: 30px; }
+  .brand-title { font-size: 15px; }
+  .brand-sub { display: none; }
+  .stats.mono-readout { order: 3; flex: 1 1 100%; min-width: 0; font-size: 11.5px; overflow-x: auto; padding-bottom: 2px; }
+  .msep { margin: 0 7px; }
+  .xpbar { display: none; }
+  .actions { margin-left: auto; max-width: 100%; overflow-x: auto; padding-bottom: 2px; }
+  .actions .btn { flex: 0 0 auto; height: 32px; font-size: 12px; }
+
+  .mobile-tabs {
+    flex: 0 0 auto; display: flex; gap: 6px;
+    padding: 8px 12px; background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .mobile-tab {
+    flex: 1; height: 38px; padding: 0 8px;
+    border-radius: var(--r-sm); border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted);
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    cursor: pointer;
+  }
+  .mobile-tab.active {
+    background: var(--accent-soft); color: var(--text);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  .layout { flex-direction: column; overflow: hidden; }
+  .sidebar, .terminal-wrap, .lesson-panel {
+    width: auto; flex: 1 1 auto; min-height: 0;
+    border: 0; border-radius: 0; margin: 0; box-shadow: none;
+  }
+  body[data-mview="modules"] .terminal-wrap,
+  body[data-mview="modules"] .lesson-panel,
+  body[data-mview="terminal"] .sidebar,
+  body[data-mview="terminal"] .lesson-panel,
+  body[data-mview="guide"] .sidebar,
+  body[data-mview="guide"] .terminal-wrap { display: none; }
+  .terminal-wrap:focus-within { border-color: transparent; box-shadow: none; }
+  .lesson-panel { padding: 20px 18px 44px; }
+  .term-hint { display: none; }
+  .terminal { padding: 14px; font-size: 14px; }
+  .promptline, .prompt, .cmd, #block-cursor { font-size: 16px; }
+  .search, .palette-input { font-size: 16px; }
+
+  .statusbar { height: 34px; gap: 10px; padding: 0 12px; font-size: 11.5px; }
+  .status-hint { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .status-hint .key { display: none; }
+  .status-right { display: none; }
+
+  .overlay { padding: 8vh 12px 0; }
+  .help { padding: 20px; }
+  .help-grid { font-size: 13px; gap: 10px 12px; }
+  .palette-hint { display: none; }
+  .toast { bottom: 84px; max-width: 92vw; text-align: center; }
+}
+
+/* ---------- small phones ---------- */
+@media (max-width: 480px) {
+  .topbar { padding: 8px 10px; }
+  .stats.mono-readout { font-size: 10.5px; }
+  .msep { margin: 0 5px; }
+  #btn-tips { font-size: 0; gap: 0; padding: 0 9px; }
+  .lesson-title { font-size: 22px; }
+  .lesson-panel { padding: 18px 14px 40px; }
+  .terminal { padding: 12px; }
+  .term-title { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .term-badge { display: none; }
+  .login-card { padding: 28px 22px 26px; }
 }
 
 /* ============================ pro tips ============================ */
