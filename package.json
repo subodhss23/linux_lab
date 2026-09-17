@@ -1,0 +1,25 @@
+{
+  "name": "linux-mastery-v2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Linux Mastery v2 — keyboard-first in-browser Ubuntu lab (1/4 shell + layout).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "node test/run.js",
+    "test:ui": "node test/ui-smoke.js"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": { "node": ">=20" }
+}

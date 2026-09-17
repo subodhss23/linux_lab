@@ -1,0 +1,34 @@
+# dependencies
+/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# next.js
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+# vercel
+.vercel
+
+# runtime / local
+/data
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env*.local
+
+# test artifacts
+/coverage
+.nyc_output
+
+# editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
