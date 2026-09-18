@@ -102,7 +102,7 @@ export const MARKUP = `
   <footer class="statusbar">
     <span id="mode-indicator" class="mode-badge">TERMINAL</span>
     <span id="status-hint" class="status-hint">Type a command. Press <span class="key">Esc</span> for navigation mode.</span>
-    <span class="status-right">mouse-free · <span class="key">Ctrl</span>+<span class="key">T</span> tips</span>
+    <span class="status-right">mouse-free · <span class="key">Ctrl</span>+<span class="key">T</span> tips <span class="status-dot" aria-hidden="true">·</span> <span class="status-built">Built in California by Subodh</span></span>
   </footer>
 </div>
 

@@ -1,61 +1,50 @@
-# PRD — Linux Mastery v2: Intermediate & Advanced Linux, by Doing
+# PRD — Linux Mastery: 4 Acts + Drill Bank, by Doing
 
 > Rebuild of https://linuxlearning-sage.vercel.app/ (Next.js) — same beloved 3-pane format,
-> expanded curriculum, new lifetime `Total Commands` metric, top progress bar, full keyboard-only
-> operation, and a new top-level folder **“linux advanced”**.
-> **No code in this phase — .md specs only.**
+> restructured so every sitting ends with a win: 4 completable Acts plus an optional
+> Drill Bank. Lifetime `Total Commands` metric, top progress bar, full keyboard-only
+> operation, footer credit “Built in California by Subodh”.
+> Supersedes the unbuilt 211-task / M31–M38 “linux advanced” plan.
 
 ## 1. Product Summary
 
-**Linux Mastery v2** is a zero-setup, browser-based Ubuntu lab that teaches intermediate →
-advanced Linux by doing. Center = simulated terminal. Left = chapters/modules. Right =
+**Linux Mastery** is a zero-setup, browser-based Ubuntu lab that teaches Linux by doing.
+Center = simulated terminal. Left = Acts + Drill Bank. Right =
 lesson instructions + clickable examples + graded task. Top = Level / XP / Done /
-Study time / **Total Commands** + curriculum progress bar.
+Study time / **Total Commands** + curriculum progress bar. Bottom status bar carries the
+builder credit.
 
-Learner types real commands (`grep`, `awk`, `ss`, `ip`, `nft`, `systemctl`, `docker`…),
+Learner types real commands (`grep`, `awk`, `ss`, `ip`, `systemctl`, `docker`…),
 the simulator grades state deterministically, awards XP, and persists progress in the browser.
 
-**Scale v2:** 38 modules · **211 graded tasks** · ~112 h · 180+ pro tips.
-V1 was 30 modules / 137 tasks / ~89 h / 141 tips. All V1 content is preserved verbatim;
-v2 only **adds** depth where users asked:
-
-- **Networking → creating 80% / viewing 20%.** Viewing (`ip addr`, `ss`, `dig`) stays as
-  prerequisite; the bulk is *creating*: netplan YAML, systemd-networkd units, veth pairs,
-  bridges, static routes, NAT, nftables/ufw rules, WireGuard tunnels, HAProxy/nginx upstreams.
-- **Viewing & Text Processing** expanded 4 → 10 lessons (pager mastery, head/tail/live,
-  cut/sort/uniq, tr/column/paste, sed/awk transforms, regex).
-- **Data Wrangling** expanded 4 → 8 lessons (jq, awk aggregation, sed -i surgery, diff discipline
-  + csvkit/mlr, yq, sqlite ingestion, parallel xargs).
-- **New folder “linux advanced”** (M31–M38, 56 tasks): kernel/boot, LVM/RAID/LUKS, hardening/
-  forensics, eBPF/perf, GitOps/containers/prod delivery, final capstone.
+**Scale:** 30 modules · **118 graded tasks** (~80h) · **16 Drill Bank fights** · 141 pro tips.
+V1 was 30 modules / 137 tasks; v2 **trims** to the most-used 118 (19 duplicates-or-niche
+tasks cut — full list in `summary.md`) and moves all reviews out of the flow into
+4 boss fights. All kept lesson IDs (`m01-l1…`, gaps where trimmed) are frozen.
 
 ## 2. Problem Statement
 
 Video/reading learners recognize commands but freeze at a real prompt. Real servers are risky
 to practice on; cloud sandboxes need setup, cost money, or reset. V1 solved this with a
-deterministic simulator. V2 solves the remaining gaps observed in V1:
+deterministic simulator. This restructure solves the motivation gaps observed in V1:
 
-1. Networking was view-heavy; employers test *building* networks.
-2. Text/data skills were too thin for real log/config/CSV work.
-3. No advanced track (kernel, eBPF, LUKS, hardening, capacity) for senior/DevOps roles.
-4. No lifetime effort odometer — learners wanted credit for *every* keystroke, right or wrong.
+1. 30 modules in one flat list felt endless — no finish line, no dopamine.
+2. Reviews interleaved in the flow punished momentum (“homework before progress”).
+3. Chapters with 6–12 tasks encouraged skimming; 3–4 killers invite mastery + reps.
+4. Learners wanted credit for *every* keystroke, right or wrong (the odometer).
 
-## 3. Goals (v2)
+## 3. Goals
 
-- [ ] Preserve exact V1 layout users love: terminal center, chapters left, instructions right,
+- [x] Preserve exact V1 layout users love: terminal center, chapters left, instructions right,
       examples click-to-insert, task must-complete to advance.
-- [ ] Reach **≥200 graded tasks** (ship 211) without breaking any V1 lesson ID (`m01-l1…m30-l5` stable).
-- [ ] Add **`totalCommands`** metric: increments on every Enter in terminal, correct or not.
-- [ ] Ship top **curriculum progress bar** (`done/total`, per-module rings) + header stats:
-      Level, XP, Done, Study time, Total Commands.
-- [ ] Define reset semantics precisely:
-      `Reset progress` = clears XP/tasks/badges/study-time but **preserves totalCommands**.
-      `Reset machine` = factory reset, clears **everything including totalCommands**.
-- [ ] Fully mouseless: `Esc` navigate · `Ctrl+K` jump · `Ctrl+T` tips · `Alt+↑/↓` lesson ·
-      `Ctrl+H` hint · `Ctrl+G` solution (+ full map in §8).
-- [ ] Search bar (modules + tasks + tips) + Tip of the Day + 5+ new robustness/engagement features.
-- [ ] Spec-first: `prd.md`, `technical_design.md`, `features.md`, `instructions.md`, `summary.md`
-      land before any code.
+- [x] Ship **118 graded Learn tasks + 16 Drill fights** (IDs frozen; gaps where trimmed).
+- [x] **`totalCommands`** metric: increments on every Enter in terminal, correct or not.
+- [x] Top **curriculum progress bar** (`done/118`) + per-Act headers + per-module rings +
+      Drill Bank counter (`done/16`) + header stats + footer builder credit.
+- [x] Precise resets: `Reset progress` preserves totalCommands; `Reset machine` zeroes all.
+- [x] Fully mouseless (`Esc · Ctrl+K · Ctrl+T · Alt+↑/↓ · Ctrl+H · Ctrl+G`), search bar,
+      Tip of the Day, milestone ranks every 100 commands.
+- [x] 4 Acts (~3 sittings each at 10 tasks/sitting) + 4 bosses, one per Act.
 
 ## 4. Non-Goals
 
@@ -70,24 +59,19 @@ deterministic simulator. V2 solves the remaining gaps observed in V1:
 |---|---|---|
 | Sam (junior dev, V1 persona) | Operate/deploy Ubuntu, pass ops interview | 1–2 h/day, 5 d/wk |
 | Priya (data / SRE-adjacent) | Wrangle logs/CSV/JSON fast with pipes | 30-min drills + tips |
-| Alex (senior → DevOps) | Harden, tune, debug prod, own incident playbook | Weekend deep-dives in “linux advanced” |
+| Alex (senior → DevOps) | Harden, tune, debug prod, own incident playbook | Weekend deep-dives in Act 4 + Boss 4 |
 
 All use a modern laptop browser. No Linux install required.
 
 ## 6. Learner Outcomes
 
-V1 outcomes (navigation → capacity) all retained. V2 adds:
-
-| Domain | New outcome |
+| Act | Outcome (“you can now…”) |
 |---|---|
-| Networking (create) | Author netplan/networkd units, build veth/bridge/namespace topologies, add routes, SNAT/DNAT, nftables/ufw policy, WireGuard peer, LB upstream |
-| Text / viewing | Drive `less`, `head/tail -F`, `cut/sort/uniq -c`, `tr/column/paste/join`, `sed -E`, `awk` field programs, `grep -P` regex |
-| Data wrangling | `jq` filters/slurp, `yq`, `csvkit`/`mlr`, `sqlite3` import + SQL, `diff -u`, `xargs -P` parallelism |
-| Kernel/boot | Read `dmesg`, manage `sysctl`, `lsmod/modprobe`, GRUB defaults, initramfs, cgroups v2, namespaces |
-| Storage adv. | Build LVM (pv/vg/lv), resize, mdadm RAID1, LUKS encrypt/open, btrfs snapshot, NFS export |
-| Security | `fail2ban`, AppArmor, `auditd`, AIDE, sudoers.d least-privilege, secret hunt + Vault |
-| Perf/eBPF | `perf stat/top`, `bpftrace` one-liners, flame-graph workflow, `tuned`, cgroup caps |
-| Prod delivery | Multi-stage Dockerfile, compose rollout, k3s manifest apply, health-gated blue-green |
+| Act 1 Survive the Box (M01–M08) | live on any Linux server: find, pipes, perms, users, procs, systemd, storage |
+| Act 2 Operate & Connect (M17,M18,M09–M13) | take a fresh VPS to working: patch, admin, firewall, packages, net, logs, SSH, cron, debug |
+| Act 3 Ship It (M14–M16,M19–M20) | deploy a real app: containers, nginx proxy, systemd, postgres, Caddy |
+| Act 4 Survive Production (M21–M30) | keep it up at 2am: observe, load-test, automate, back up, diagnose, respond, release, harden, alert, plan |
+| Drill Bank (B1–B4) | prove it under fire: one 4-fight boss per Act, using only that Act's skills |
 
 ## 7. Core Experience (must-keep format)
 
@@ -95,24 +79,25 @@ V1 outcomes (navigation → capacity) all retained. V2 adds:
 ┌──────────────────────────────────────────────────────────────┐
 │ Topbar: logo · Level XP Done Study-time TotalCmds · XP bar   │
 │         Pro-tips · theme · Reset machine · Reset progress    │
-│         Curriculum progress: ████████░░ 142/211 tasks (67%)  │
+│         Curriculum progress: ████████░░ 87/118 tasks         │
 ├──────────┬────────────────────────────┬──────────────────────┤
 │ LEFT     │ CENTER                     │ RIGHT                │
-│ chapters │ terminal simulation        │ instruction          │
-│ search   │ sam@ubuntu-lab:~$ █        │ theory               │
-│ modules  │ output scrollback          │ examples (clickable) │
+│ Acts 1-4 │ terminal simulation        │ instruction          │
+│ DrillBank│ sam@ubuntu-lab:~$ █        │ theory               │
+│ search   │ output scrollback          │ examples (clickable) │
 │ rings    │ statusbar: TERMINAL/NAV    │ task + hint/solution │
-│ tip-day  │ hint: Esc nav · Ctrl+K…    │ XP value, check btn  │
+│ tip-day  │ Built in California…      │ XP value, check btn  │
 └──────────┴────────────────────────────┴──────────────────────┘
 ```
 
-- **Left:** collapsible module folders incl. new folder `linux advanced`; search filters
-  modules+lessons+tips; per-module ring + `x/y`; click or keyboard opens lesson.
+- **Left:** 4 Act sections (title + payoff + live counter + ✔) + **🥋 Drill Bank**
+  (4 bosses, own counter) + search + per-module rings + tip-day footer.
 - **Center:** simulated prompt `sam@ubuntu-lab:~$`, scrollback, input. Supports pipes,
   redirects (`> >> < 2> &>`), chaining (`&& || ;`), `$(…)` substitution, globs, vars, `~`,
-  history (`↑/↓`, `history`, `!!`), Tab-complete, `Ctrl+L/C`.
+  history (`↑/↓`, `history`, `!!`), Tab-complete, `Ctrl+L/C`. Ownership behaves like
+  real Ubuntu (user `mkdir` → user-owned).
 - **Right:** objective → theory → 2–4 clickable examples (click or `1–9` in NAV mode inserts
-  into terminal) → **Task** box (prompt, hidden check, Hint / Solution buttons, XP stake).
+  into terminal) → **Task** box (prompt, hidden check, Hint / Solution buttons).
 - Grading is immediate: correct state transition → toast + XP + Done+1 + auto-suggest next.
   Wrong → concise reason, no penalty except `totalCommands+1` still counts.
 
@@ -151,96 +136,61 @@ Status bar always shows `TERMINAL` vs `NAV` + active hints. Mouse remains option
 | Metric | Definition | Persisted | Reset-progress | Reset-machine |
 |---|---|---|---|---|
 | **Level** | `floor(sqrt(xp/50))+1` | derived | →1 | →1 |
-| **XP** | 10/task +5 first-try −3 hint −5 solution (min 2) | yes | →0 | →0 |
-| **Done** | lessons with `done:true` | yes | →0 | →0 |
+| **XP** | 10/task −4 hint −6 solution (min 2) | yes | →0 | →0 |
+| **Done** | Learn lessons with `done:true` (valid IDs only) | yes | →0 | →0 |
 | **Study time** | active seconds (tick while visible+focused, 1 s granularity, save every 10 s) | yes | →0 | →0 |
-| **Total Commands** ⭐ NEW | count of Enters in terminal, **valid or not, pass or fail** | yes (`totalCommands`) | **kept** | →0 |
-| Progress bar | `done/211` overall + per-module `done/total` + XP-to-next-level fill | derived | →0% | →0% |
+| **Total Commands** | count of Enters in terminal, **valid or not, pass or fail** | yes (`totalCommands`) | **kept** | →0 |
+| Progress bar | `done/118` overall + Drill `done/16` + per-module `done/total` + XP-to-next-level fill | derived | →0% | →0% |
 
-- Badges: one per module at 100%; “linux advanced” folder badge at 56/56.
-- Streak / daily goal (new): 1+ task/day extends streak; 25 XP/day default goal ring.
-- First-try bonus only if no hint/solution and first graded Enter passes.
+- Per-Act headers show `done/total · %` + ✔ at 100%; each boss fight reuses lesson XP.
+- Milestone ranks + quotes fire every 100 lifetime commands.
 - `totalCommands` is a lifetime odometer — the only number `Reset progress` never clears.
   Rationale: effort survived even when learner restarts curriculum. `Reset machine` is the
-  single escape hatch that zeroes it (double-confirm, typed `RESET` in v2).
+  single escape hatch that zeroes it (double-confirm, typed `RESET`).
 - Time format `HH:MM:SS`; study timer pauses on `hidden` tab / blur >60 s.
 
-## 10. Curriculum (38 modules · 211 tasks · ~112 h)
+## 10. Curriculum (30 modules · 118 tasks · ~80h + Drill Bank 16)
 
-V1 M01–M30 kept (137 tasks). Expansions + new folder:
+Kept IDs are frozen (gaps where trimmed — never renamed, so saved progress survives).
 
-| ID | Module (folder) | Tasks | Δ | Hours |
-|---|---|---|---|---|
-| M01 | Foundations: Fluency Drill | 4 | — | 2 |
-| M02 | Data Wrangling & System Introspection | 8 | +4 | 4.5 |
-| M03 | Viewing & Text Processing | 10 | +6 | 5 |
-| M04 | Permissions & Ownership | 4 | — | 3 |
-| M05 | Users & Groups | 4 | — | 2.5 |
-| M06 | Processes & Jobs | 4 | — | 3 |
-| M07 | Services & systemd | 4 | — | 2.5 |
-| M08 | Filesystems & Storage | 4 | — | 3 |
-| M09 | Networking (80% create / 20% view) | 10 | +6 | 5 |
-| M10 | Logs & Monitoring | 4 | — | 2.5 |
-| M11 | SSH & Remote Access | 4 | — | 3 |
-| M12 | Shell Scripting & Cron | 4 | — | 3 |
-| M13 | Debugging & Troubleshooting | 4 | — | 2.5 |
-| M14 | Docker & Containers | 5 | — | 3.5 |
-| M15 | Web Stack: Build & Deploy | 5 | — | 4 |
-| M16 | Capstone: Deploy a Full App | 2 | — | 1.5 |
-| M17 | Server Bootstrap: Day-0 Checklist | 6 | — | 3 |
-| M18 | Ubuntu Server Essentials & Packages | 5 | — | 2.5 |
-| M19 | PostgreSQL in Production | 5 | — | 3 |
-| M20 | Caddy & Modern Web Serving | 4 | — | 2.5 |
-| M21 | Monitoring & Observability | 6 | — | 3 |
-| M22 | Performance & Load Testing | 5 | — | 3 |
-| M23 | Automation & IaC | 7 | — | 3.5 |
-| M24 | Backups, Restore & DR | 6 | — | 3 |
-| M25 | Robust Networking, Diagnostics & LB | 8 | +2 | 4 |
-| M26 | Production Incident Response | 4 | — | 4 |
-| M27 | Zero-Downtime Deploys & CI/CD | 4 | — | 3.5 |
-| M28 | Secrets Mgmt & Security Hardening | 5 | — | 3.5 |
-| M29 | Observability & Alerting | 5 | — | 3 |
-| M30 | Capacity Planning & Perf Tuning | 5 | — | 3.5 |
-| **M31** | **linux advanced / Adv. Text & Data Wrangling** | 8 | NEW | 4 |
-| **M32** | **linux advanced / Adv. Networking: Build & Create** | 8 | NEW | 4 |
-| **M33** | **linux advanced / Kernel, Boot & Internals** | 7 | NEW | 3.5 |
-| **M34** | **linux advanced / Storage: LVM, RAID & Encryption** | 7 | NEW | 3.5 |
-| **M35** | **linux advanced / Security, Hardening & Forensics** | 7 | NEW | 3.5 |
-| **M36** | **linux advanced / Performance Engineering & eBPF** | 7 | NEW | 3.5 |
-| **M37** | **linux advanced / GitOps, Containers & Prod Delivery** | 7 | NEW | 3.5 |
-| **M38** | **linux advanced / Final Capstone** | 5 | NEW | 2.5 |
-| | **Total** | **211** | **+74** | **~112** |
+| Act | Modules | Tasks |
+|---|---|---|
+| Act 1 Survive the Box | M01 Foundations (4) · M02 Data Wrangling (4) · M03 Text (4) · M04 Perms (4) · M05 Users (4) · M06 Processes (4) · M07 systemd (4) · M08 Storage (4) | 32 |
+| Act 2 Operate & Connect | M17 Bootstrap (4) · M18 Packages (4) · M09 Networking (4) · M10 Logs (4) · M11 SSH (4) · M12 Scripting (4) · M13 Debugging (4) | 28 |
+| Act 3 Ship It | M14 Docker (4) · M15 Web Stack (4) · M16 Capstone (2) · M19 Postgres (4) · M20 Caddy (4) | 18 |
+| Act 4 Survive Production | M21 Observability (4) · M22 Perf (4) · M23 Automation (4) · M24 Backups (4) · M25 Net Diag + LB (4) · M26 Incidents (4) · M27 CI/CD (4) · M28 Secrets (4) · M29 Alerting (4) · M30 Capacity (4) | 40 |
+| 🥋 Drill Bank | B1 Log Ambush · B2 Dark Server · B3 Ship It Live · B4 2AM Meltdown (4 fights each) | 16 |
 
-Networking 80/20 rule (M09+M32): of 18 networking tasks, ≥14 must mutate/create state
-(netplan write + apply, veth/bridge/namespace, route add, NAT, nft/ufw, WireGuard, LB upstream,
-socat relay, `/etc/hosts` entry) and ≤4 are pure viewing (`ip`, `ss`, `dig`, `ping`).
-Checks must assert FS/config/process state, not just history substring.
+Trimmed (duplicates-or-niche, recoverable from git): M17-l2 (hostname), M17-l6 (swap),
+M18-l4 (apt remove), M14-l1 (docker images list), M15-l4 (certbot — Caddy owns TLS),
+M19-l5 (ss:5432 dup), M21-l2 (mpstat intro — reps in M22/M30), M21-l4 (SMART),
+M22-l1 (ab — reps in M30), M23-l3 (cron dup), M23-l5 (at), M23-l7 (make),
+M24-l2 (pg_dump dup), M24-l6 (cron automate), M25-l1+l2 (ip/ss viewing dups),
+M28-l5 (trivy), M29-l4 (journal persist), M30-l2 (perf profiler).
 
-Full 211-task table (ID, module, title, prompt, solution, XP) lives in `summary.md`
-(normative for build) and is summarized by feature in `features.md`.
+Full task catalog lives in `summary.md` (normative for build).
 
 ## 11. Search, Tips, Progress UI
 
-- **Search bar** (left head): filters modules + lesson titles + task prompts + tip commands
-  in one list; `Ctrl+K` palette reuses same index; `Enter` jumps; empty state suggests Next lesson.
+- **Search bar** (left head): filters Learn + drill fights + tips in one list;
+  `Ctrl+K` palette reuses same index; `Enter` jumps; bosses show with 🥋 prefix.
 - **Tip of the Day** (sidebar teaser): deterministic by date (`dayOfYear % tips.length`),
-  click/`Ctrl+T` opens; rotates without repeating within 30 d window.
-- **Pro tips library:** 180+ entries (141 carried + ~40 new on networking-create, jq/yq,
-  eBPF, LUKS, nftables, WireGuard); each `{cmd, why, category}`; `Enter` inserts runnable
+  click/`Ctrl+T` opens.
+- **Pro tips library:** 141 entries, each `{cmd, why, category}`; `Enter` inserts runnable
   commands or copies shortcut-style tips.
-- **Progress bar (top):** overall `done/211` fill + % + per-module rings; XP-to-next-level
-  thin fill under stats; 100% triggers confetti + folder badge.
+- **Progress:** overall `done/118` fill + Drill `done/16` + per-Act headers + per-module
+  rings; XP-to-next-level thin fill; milestone rank + quote every 100 commands.
 
-## 12. New Robustness / Delight Features (v2)
+## 12. Engagement (shipped, deliberately small)
 
-1. **Daily Quest + streak** — “Complete 3 tasks / earn 25 XP today”; streak flame in header.
-2. **Exam mode** — hides hints/solutions, shuffles 10 tasks, timed, grades pass/fail + report.
-3. **Boss fight per folder** — multi-step incident (502 + disk + OOM) requiring 3–5 commands.
-4. **Command analytics** — most-used commands, success rate, first-try % (feeds off `totalCommands`).
-5. **Copy-example + runnable check** — every example has copy button + “tried” tick.
-6. **Undo-hint / retry-streak** — retry without re-peek keeps first-try window (forgiving).
-7. **Offline + export** — progress export/import JSON; works offline after first load.
-8. **Deep links** — `#m09-l5`, `#tips`, `#exam`, `?theme=light|dark`.
+1. **4 Acts** — completable arcs with payoff lines, ✔ headers, and a Boss per Act.
+2. **Drill Bank** — 16 combination fights reusing only taught skills; optional, never blocking.
+3. **Milestones** — rank + quote every 100 lifetime commands.
+4. **Boss-boundary toasts** — “Boss cleared 🥋” / “Curriculum complete 🎓”.
+5. **Footer credit** — “Built in California by Subodh” in the lab status bar.
+6. **Deep links** — `#palette`, `#help`, `#tips`, `#tips-random`, `?theme=light|dark`.
+Dropped from the old roadmap (never built, not promised): exam mode, streaks/quests,
+achievements, analytics page, progress export.
 
 ## 13. Reset Semantics (normative)
 
@@ -254,33 +204,31 @@ Full 211-task table (ID, module, title, prompt, solution, XP) lives in `summary.
 
 ## 14. Success Metrics
 
-- Capstone (M38) completable unaided after curriculum.
-- Median session ≥30 min; Day-7 return ≥35% (local estimate via streak).
-- ≥75% tasks pass before hint (first-try proxy).
-- `totalCommands` median ≥400 at curriculum midpoint (effort visible).
-- Zero P1: no lesson unpassable in simulator; `npm test` auto-solves all 211.
+- Boss 4 clearable unaided after Act 4.
+- Median session ≥30 min; Act completion celebrated (✔ header + toast).
+- `totalCommands` median ≥300 at curriculum midpoint (effort visible).
+- Zero P1: no lesson unfailable/unpassable in simulator; `npm test` auto-solves all 118 + 16.
 
 ## 15. Risks & Mitigations
 
 | Risk | Mitigation |
 |---|---|
-| Simulator diverges from real Linux | Mirror Ubuntu output; per-command “differs” note; exam uses only covered flags |
-| Create-heavy networking ungradable | Grade FS/config/net-state, not string match; seed fixtures; idempotent checks |
-| 211 tasks overwhelm | Folders + search + daily quests + exam; “Next lesson” default in palette |
+| Simulator diverges from real Linux | Mirror Ubuntu output (e.g. mkdir ownership fix); per-command `--help`; drills dogfood the sim |
+| 134 items overwhelm | Acts + bosses + search + “Next lesson” default in palette; 10-task sittings |
 | Odometer confusion | Tooltip + instructions + distinct confirm copy for the two resets |
-| Content regressions | Walkthrough test solves all 211; UI smoke covers resets/keyboard |
+| Content regressions | Walkthrough test solves 118+16; UI smoke covers counts/resets/keyboard |
 
-## 16. MVP vs Later
+## 16. Shipped vs Later
 
-- **V2 MVP (this spec):** all §7–§13, 211 tasks, 180+ tips, resets as defined, tests green, Vercel deploy.
+- **Shipped:** all §7–§13, 118 tasks + 16 fights, 141 tips, resets as defined, tests green.
 - **Later:** real container backend toggle, accounts/scoreboard, AI tutor hints, cert export,
-  i18n, mobile terminal.
+  exam mode, streaks, analytics, progress export, i18n, mobile terminal.
 
 ## Appendix A — Task-count contract
 
-Build MUST ship exactly the 211 IDs in `summary.md` (`m01-l1…m30-l5` unchanged +
-`m02-l5…l8`, `m03-l5…l10`, `m09-l5…l10`, `m25-l7…l8`, `m31-l1…m38-l5`). Renames of V1 IDs forbidden.
-New IDs must validate in `test/run.js` walkthrough.
+Build ships exactly the 118 Learn IDs in `summary.md` (kept IDs frozen — gaps where
+trimmed, never renamed) + 16 drill IDs (`b1-l1…b4-l4`, namespaced, Learn-external).
+`test/run.js` walkthrough must solve all 134. Renames of shipped IDs forbidden.
 
 ## Appendix B — Source of truth
 

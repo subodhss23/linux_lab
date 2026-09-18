@@ -435,7 +435,9 @@ body.nav-mode .terminal-wrap:focus-within {
 }
 body.nav-mode .mode-badge { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
 .status-hint { flex: 1; }
-.status-right { color: var(--faint); }
+.status-right { color: var(--faint); white-space: nowrap; }
+.status-built { color: var(--muted); }
+.status-dot { margin: 0 2px; }
 
 /* ---------- key chips ---------- */
 .key {

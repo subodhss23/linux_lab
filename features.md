@@ -1,53 +1,60 @@
-# Features — Linux Mastery v2
+# Features — Linux Mastery (4 Acts + Drill Bank)
 
 Companion to `prd.md` (what/why) and `technical_design.md` (how). This file is the
-feature-by-feature build checklist. V1 behavior preserved unless marked **[NEW]** or **[CHANGED]**.
+feature-by-feature build checklist. It describes what SHIPPED (30 modules / 118 tasks /
+141 tips + Drill Bank); the old 211-task / M31–M38 plan was never built and is dropped.
 
 ## 1. Layout (beloved format, kept)
 
-- **Topbar:** brand + stats (Level, XP, Done, Study time, **[NEW]** Total Commands) +
-  XP-to-next thin bar + buttons (Pro tips, theme, Reset machine, Reset progress) +
-  **[NEW]** overall curriculum progress bar `done/211 + %`.
-- **Left (chapters):** search bar on top → module folders → per-module `x/y` ring →
-  new collapsible folder **`linux advanced`** (M31–M38) → sidebar footer **Tip of the Day**.
+- **Topbar:** brand + stats (Level, XP, Done, Study time, Total Commands) +
+  XP-to-next thin bar + buttons (Pro tips, theme, Reset machine, Reset progress, Logout) +
+  overall curriculum progress bar `done/118`.
+- **Left (chapters):** search bar on top → 4 Act sections (each with title, payoff,
+  live `done/total · %`, ✔ at 100%) → per-module `x/y` ring → **🥋 Drill Bank**
+  (4 boss fights, own `done/16` counter) → sidebar footer **Tip of the Day**.
 - **Center (terminal simulation):** titlebar `sam@ubuntu-lab: ~ · simulated`, scrollback,
   prompt line, footer hint exactly:
   `Esc navigate · Ctrl+K jump · Ctrl+T tips · Alt+↑/↓ lesson · Ctrl+H hint · Ctrl+G solution`.
 - **Right (instruction):** objective → theory → examples (click inserts; NAV `1–9`) →
-  **Task** (prompt + `Check` implicit on Enter + Hint/Solution + XP stake + tried ticks).
-- **Statusbar:** `TERMINAL|NAV` badge + contextual hint + `mouse-free · Ctrl+T tips`.
+  **Task** (prompt + `Check` implicit on Enter + Hint/Solution + tried ticks).
+- **Statusbar:** `TERMINAL|NAV` badge + contextual hint + `mouse-free · tips` +
+  `Built in California by Subodh`.
 
 ## 2. Metrics
 
 | Metric | UI | Rule |
 |---|---|---|
 | Level | `stat-level` | `floor(sqrt(xp/50))+1` |
-| XP | `stat-xp` + fill | 10 +5 first-try −3 hint −5 sol (min 2) |
-| Done | `stat-done` | count `lessons[id].done` |
+| XP | `stat-xp` + fill | 10 per task, −4 hint, −6 solution (min 2) |
+| Done | `stat-done` | count of done lessons among current Learn IDs (`x/118`) |
 | Study time | `stat-time HH:MM:SS` | tick while visible; pause when hidden |
-| **[NEW]** Total Commands | `stat-cmds` + tooltip “lifetime Enters, right or wrong” | +1 per non-empty Enter, even on error/fail |
-| Progress bar | `overall-fill/text` | `done/211`, per-module rings, folder aggregates |
+| Total Commands | `stat-cmds` + tooltip “lifetime Enters, right or wrong” | +1 per non-empty Enter, even on error/fail |
+| Progress bar | `overall-fill/text` | `done/118`, per-module rings, per-Act headers, Drill Bank `done/16` |
+| Milestones | toast + terminal banner | every 100 lifetime commands: rank + quote |
 
-**[CHANGED]** `Reset progress` keeps Total Commands; **`Reset machine` zeroes everything.**
-See `prd.md §13` for confirm copy. Analytics page (new) charts commands/day, top commands,
-first-try % — all derived from `totalCommands` + history.
+`Reset progress` keeps Total Commands; **`Reset machine` zeroes everything.**
+Stale progress keys (removed lessons) are ignored by the Done counter.
 
 ## 3. Terminal simulation
 
 Pipes `|`, redirects `> >> < 2> 2>> &>`, chaining `&& || ;`, `$(…)` substitution, globs,
-vars, `~`, history/`!!`, Tab-complete, `Ctrl+L/C`, `↑/↓`. 190+ commands.
-**[NEW]** stubs: `ip/netns/bridge/netplan/networkctl/nft/ufw/wg/socat/haproxy -c`,
-`column/paste/join/mlr/csvcut/yq/sqlite3`, `sysctl/lsmod/dmesg`, `pvs/lvs/md adm/cryptsetup/btrfs`,
-`fail2ban/auditctl`, `perf/bpftrace`, `kubectl/helm`, `restic/rclone`.
-Each new command has realistic output + `--help` + failure modes.
+vars, `~`, history/`!!`, Tab-complete, `Ctrl+L/C`, `↑/↓`. ~190 commands incl. `docker
+(+compose)`, `nginx`, `psql/pg_dump/pg_isready`, `caddy`, `restic`, `rclone`, `vault`,
+`auditctl`, `trivy`, `promtool`, `amtool`, `gh`, `ab`, `hey`, `wrk`, `sysctl`, `perf`,
+`fio`, `sysbench`, `ansible-playbook`, `tcpdump`, `nmap`, `mtr`, `fail2ban-client`.
+Ownership is enforced like real Ubuntu: user `mkdir` creates user-owned dirs
+(fixed Part 4 — nested `mkdir -p ~/a/b` used to fail), `sudo mkdir` stays root-owned.
 
 ## 4. Chapters (left) + search bar
 
-- Folders: `Core (M01–M30)` + **`linux advanced (M31–M38)`**. Collapse persists.
-- Search input filters modules/lessons/task-prompts/tips live; clear `×`; `Esc` returns focus to terminal.
-- Palette (`Ctrl+K`) shares index + actions (Next/Prev, Hint, Solution, Random tip, Exam,
-  Export, Resets, Theme, Help). Default selection = Next lesson.
-- Module rows show ring + `x/y`; completed = check; active = highlight; NAV `h/l` switches module.
+- Acts: `Act 1 Survive (M01–M08)` + `Act 2 Operate (M17,M18,M09–M13)` +
+  `Act 3 Ship (M14–M16,M19–M20)` + `Act 4 Production (M21–M30)` + **`Drill Bank (B1–B4)`**.
+  UI order follows Acts (bootstrap before networking), not file order; glyphs are stable
+  (`01`–`30`, `B1`–`B4`).
+- Search input filters Learn + drill fights live; clear `×`; `Esc` returns focus to terminal.
+- Palette (`Ctrl+K`) shares index (Next/Prev, Hint, Solution, tips, resets, theme, logout,
+  every lesson + every fight). Default selection = Next lesson.
+- Module rows show ring + `x/y`; completed = check; active = highlight; NAV `h/l` switches module (boss-aware).
 
 ## 5. Instructions (right) + examples + tasks
 
@@ -56,78 +63,69 @@ Each new command has realistic output + `--help` + failure modes.
   `task{prompt,hint,solution}` + XP stake + Peeked badge if hint/solution used.
 - Task completion: any Enter that makes `check(env)` true → pass toast, XP, Done+1,
   ring/bar update, “Next →” suggestion. Fail → inline reason, no XP loss.
-- **[NEW]** “Why this matters” one-liner per advanced task (interview/prod framing).
+- Boss fights reuse the same panel/grading/XP; finishing a fight's last task toasts
+  instead of leaking into Learn; finishing M30-l5 toasts “Curriculum complete 🎓”.
 
-## 6. Expanded sections (user-requested depth)
+## 6. Curriculum shape (3–4 tasks per chapter)
 
-### 6.1 Networking — 80% creating / 20% viewing (M09 4→10 + M32 8 + M25 +2 = 20 tasks)
-- Viewing (20%): `ip addr/route`, `ss -tlnp`, `ping/dig`, `mtr` read-only.
-- Creating (80%): write netplan YAML + `netplan apply`, write systemd-networkd `.network`,
-  `ip link add veth… + bridge + netns`, `ip route add`, `ufw/nft` allow/deny + reload,
-  `ss` after starting listener, `curl` through proxy/upstream, `/etc/hosts` entry,
-  NAT masquerade, WireGuard `wg0.conf` + `wg-quick up`, HAProxy/nginx upstream + `nginx -t`,
-  `socat` relay, `tcpdump -c` capture proof.
-- Grading asserts state (`net.*` + files), never mere history substring.
+Every Learn chapter holds 2–4 graded tasks (M16 capstone: 2) covering the most-used,
+most-impactful commands; variations live in clickable examples. 19 tasks were trimmed
+as duplicates-or-niche (see `summary.md`); cuts survive in git + archived `curriculum-extra.js`.
 
-### 6.2 Viewing & Text Processing (M03 4→10)
-Kept: pipes/redirect, `grep -i`, `cut/sort/uniq`, `sed/awk`.
-**[NEW]** `m03-l5 less navigation` (`less +/pattern`), `l6 head/tail -F`,
-`l7 paste/join/column/tr`, `l8 sort -u/uniq -c pipelines`, `l9 sed -E regex groups`,
-`l10 awk field programs + printf`. Fixtures: 10k-line access log + CSV.
+### 6.1 Networking (M09 4 + M25 4 — view once, diagnose deeply)
+- M09: `ip addr/route`, `ping/dig`, `ss -tlnp`, `ufw allow + enable` + `curl`.
+- M25: pure diagnostics + create: `tcpdump -c` capture, `nmap` + `nc`, `mtr` report,
+  nginx `upstream` + `proxy_pass`. Viewing dups (`ip r`, `ss` lists) were cut.
+- Grading asserts state/files, never mere history substring.
 
-### 6.3 Data Wrangling (M02 4→8)
-Kept: `jq .field`, `awk status counts`, `sed -i`, `diff -u`.
-**[NEW]** `l5 jq slurp/filter/reduce`, `l6 mlr/csvcut stats`, `l7 yq eval + sqlite3 import`,
-`l8 xargs -P parallel + datamash`. All operate on `/srv/data/*`.
+### 6.2 Viewing & Text Processing (M03, 4)
+Pipes/redirect, `grep -i`, `cut/sort/uniq`, `sed/awk`. The daily text toolkit, nothing exotic.
 
-### 6.4 New folder: linux advanced (M31–M38, 56 tasks)
-| Mod | Focus | Signature creates |
+### 6.3 Data Wrangling (M02, 4)
+`jq .field`, `awk` status counts, `sed -i` surgery, `diff -u` discipline. No csvkit/yq/sqlite
+(they were planned, never built, and cut from scope).
+
+### 6.4 Drill Bank (B1–B4, 16 fights — reviews live here, never in the flow)
+| Boss | After | Fights |
 |---|---|---|
-| M31 Adv. Text & Data (8) | csvkit, jq+, xml, sqlite, parallel | `report.csv` via pipeline, `query.sql` result |
-| M32 Adv. Networking Build (8) | netns/veth/bridge/NAT/nft/tc/wg/socat | working topology + `topo.txt` proof |
-| M33 Kernel/Boot (7) | dmesg, lsmod, sysctl, grub, cgroups, ns | `sysctl.d/99-lab.conf` + `cgroup` cap |
-| M34 Storage adv (7) | LVM, RAID, LUKS, btrfs, NFS | `vg0/lvdata` + crypt mount + snapshot |
-| M35 Security/Forensics (7) | fail2ban, AppArmor, auditd, sudoers, hunt | `jail.local` + `audit.rules` + Vault kv |
-| M36 Perf/eBPF (7) | perf, bpftrace, flame, tuned, limits | `perf.data` + `limits.conf` + report |
-| M37 GitOps/Containers (7) | multi-stage, compose, k3s, helm, CI | image + `deployment.yaml` + green deploy |
-| M38 Capstone (5) | harden→break→fix→ship + writeup | live app + `POSTMORTEM.md` |
+| B1 Log Ambush (4) | Act 1 | rank 404s, scrub+diff, 700 locker, kill runaway |
+| B2 Dark Server (4) | Act 2 | fw-vs-listeners, 3-way ssh proof, ship+gate, port-80 witnesses |
+| B3 Ship It Live (4) | Act 3 | throwaway 8081 + clean dock, proxy targets, db parade, caddy valid |
+| B4 2AM Meltdown (4) | Act 4 | incident bundle, 502 + restore, backup proofs, secrets + signals |
 
-## 7. Gamification & new engagement
+## 7. Gamification & engagement (shipped)
 
-- **[KEPT]** XP/levels/badges/first-try/hint-sol penalties/time.
-- **[NEW]** Total Commands odometer (see §2).
-- **[NEW]** Daily Quest (`25 XP or 3 tasks`) + streak flame + goal ring.
-- **[NEW]** Exam mode: 10 random tasks, no hints, timer, score report → `examHistory`.
-- **[NEW]** Boss fight per folder: chained incident (502→disk→CPU) in one session.
-- **[NEW]** Achievements: First Blood, Pipe Wizard, Net Builder (10 creates), Night Owl,
-  100-Commands, Tip Hoarder (25 inserts), Clean Sheet (exam 10/10).
-- **[NEW]** Command analytics drawer: top-10 commands, pass rate, sparkline.
-- **[NEW]** Export/import progress JSON; deep links `#m09-l5 #tips #exam`; offline-ready.
-- **[NEW]** 180+ tips (V1 141 + ~40: net-create, jq/yq, nft/wg, LUKS, eBPF one-liners).
+- XP/levels/rings/Act headers/Drill counter/milestone ranks + quotes every 100 commands.
+- Total Commands odometer (see §2).
+- Pro-tip library (141) + Tip of the Day + `Ctrl+T` browser.
+- Boss fights per Act (see §6.4) — the reps live here.
+- Deep links `#palette`, `#help`, `#tips`, `#tips-random`, `?theme=light|dark`.
+- NOT built (old roadmap, dropped): daily quest/streak, exam mode, achievements,
+  analytics page, progress export/import, accounts.
 
 ## 8. Keyboard map (normative, mouseless-complete)
 
 `Esc` NAV (`h j k l g G Enter 1–9 i/q`) · `Ctrl+K` palette · `Ctrl+T` tips (`Tab` cat) ·
 `Alt+↑/↓` lesson · `Ctrl+H` hint · `Ctrl+G` solution · `Ctrl+Enter` next ·
 `Ctrl+Shift+D` theme · `Ctrl+L` clear · `Ctrl+C` cancel · `↑/↓` history · `Tab` complete ·
-`?` help. Palette covers every button action (resets/exam/export/theme) so mouse never required.
+`?` help. Palette covers lessons, fights, tips, resets, theme, logout — mouseless-complete.
 Statusbar + overlay document this; `?` opens help.
 
 ## 9. Resets, tips, progress bar (acceptance)
 
-- Search finds any of 211 tasks by keyword in <100 ms; `Enter` jumps.
-- Tip-of-day deterministic (`dayOfYear % 180`), no repeat in 30 d; click opens `Ctrl+T`.
-- Progress bar `x/211` exact; per-module rings exact; XP fill ` (xp-cur)/(next-cur)`.
+- Search finds any of 118 tasks + 16 fights by keyword; `Enter` jumps.
+- Tip-of-day deterministic (`dayOfYear % len`); click opens `Ctrl+T`.
+- Progress bar `x/118` exact; Drill Bank `x/16` exact; per-module rings exact; XP fill exact.
 - `Reset progress`: keeps `totalCommands`, zeroes rest, toast shows kept count.
-- `Reset machine`: type-`RESET` confirm, zeroes `totalCommands`, restores FS/net, toast confirms.
+- `Reset machine`: type-`RESET` confirm, zeroes `totalCommands`, restores seed, toast confirms.
 - Wrong commands still +1 Total; empty Enter +0; history `!!` re-exec +1 again.
 
-## 10. Build checklist (code phase gate)
+## 10. Build checklist (all green)
 
-- [ ] `curriculum.js` 211 lessons, IDs per `summary.md`, checks state-based for creates.
-- [ ] `commands.js` new stubs + helps; `machine.js` fixtures; `net` model + reset.
-- [ ] `app.js` odometer, search index, palette actions, exam/boss/quest/streak, export, deep links.
-- [ ] `tips.js` ≥180; sidebar teaser + `Ctrl+T` browser.
-- [ ] Header `#stat-cmds`, tooltips, confirms, toasts, progress `x/211`.
-- [ ] `test/run.js` solves 211; `test/ui-smoke.js` covers §9 + keyboard.
-- [ ] Vercel build green; `?theme=` + `#` links work; offline reload keeps progress.
+- [x] `curriculum.js` 118 lessons, frozen IDs (gaps where trimmed), state-based checks.
+- [x] `drillbank.js` 16 fights (`b1-l1…b4-l4`), Learn-external, walkthrough-covered.
+- [x] `commands.js` real-behavior stubs + `--help`; `machine.js` seed fixtures; mkdir ownership fix.
+- [x] `app.js` Acts order, Drill section, palette, toasts, `validIds`, footer credit.
+- [x] `tips.js` 141 tips; sidebar teaser + `Ctrl+T` browser.
+- [x] Header `#stat-cmds`, tooltips, confirms, toasts, progress `x/118` + drill `x/16`.
+- [x] `test/run.js` 98 checks (118 + 16 auto-solved); `test/ui-smoke.js` (34 modules / 134 lessons).
