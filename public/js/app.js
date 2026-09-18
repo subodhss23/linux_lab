@@ -427,15 +427,54 @@
   function levelFor(xp) { return Math.floor(Math.sqrt(xp / 50)) + 1; }
   function xpForLevel(l) { return Math.pow(l - 1, 2) * 50; }
 
-  /* mono glyph for sidebar: 01..30 for modules, R1..R9 for reviews */
+  /* mono glyph for sidebar: stable module number from id (01..30), B1..B4 for bosses */
   function moduleGlyph(mod) {
-    var idx = CURRICULUM.indexOf(mod);
-    if (mod.id && mod.id.charAt(0) === "r") {
-      var n = parseInt(mod.id.slice(1), 10);
-      return "R" + (isNaN(n) ? (idx + 1) : n);
+    if (mod.id && mod.id.charAt(0) === "b") {
+      var bn = parseInt(mod.id.slice(1), 10);
+      return "B" + (isNaN(bn) ? "?" : bn);
     }
-    var num = idx + 1;
+    var num = parseInt((mod.id || "").slice(1), 10);
+    if (isNaN(num)) num = CURRICULUM.indexOf(mod) + 1;
     return (num < 10 ? "0" : "") + num;
+  }
+
+  /* Act-ordered curriculum: UI follows ACTS order (M17/M18 before M09),
+   * not physical array order. Falls back to array order if ACTS missing. */
+  function orderedCurriculum() {
+    var ACTS = window.ACTS || [];
+    if (!ACTS.length) return CURRICULUM.slice();
+    var byId = {};
+    CURRICULUM.forEach(function (m) { byId[m.id] = m; });
+    var out = [];
+    ACTS.forEach(function (act) {
+      act.modules.forEach(function (id) { if (byId[id]) out.push(byId[id]); });
+    });
+    // any module not listed in an Act still shows (safety net)
+    CURRICULUM.forEach(function (m) { if (out.indexOf(m) === -1) out.push(m); });
+    return out;
+  }
+  function actFor(mod) {
+    if (window.actOf) return window.actOf(mod.id);
+    return null;
+  }
+
+  /* Drill Bank helpers: bosses live outside CURRICULUM (Learn total stays 118) */
+  function orderedDrill() { return (window.DRILLBANK || []).slice(); }
+  function isBossMod(mod) { return mod && mod.id && mod.id.charAt(0) === "b"; }
+  function drillById(id) {
+    var d = orderedDrill();
+    for (var i = 0; i < d.length; i++) if (d[i].id === id) return d[i];
+    return null;
+  }
+  function drillProgress() {
+    var total = 0, done = 0;
+    orderedDrill().forEach(function (b) {
+      b.lessons.forEach(function (l) {
+        total++;
+        if (state.progress.lessons[l.id] && state.progress.lessons[l.id].done) done++;
+      });
+    });
+    return { total: total, done: done };
   }
 
   function renderStats(tick) {
@@ -455,7 +494,7 @@
     }
     var xpbar = document.getElementById("stat-xpbar");
     if (xpbar) xpbar.style.width = pct + "%";
-    var done = Object.keys(state.progress.lessons).filter(function (k) { return state.progress.lessons[k].done; }).length;
+    var done = Object.keys(state.progress.lessons).filter(function (k) { return state.validIds && !state.validIds[k] ? false : state.progress.lessons[k].done; }).length;
     document.getElementById("stat-done").textContent = done + "/" + state.totalTasks;
     var cmdsEl = document.getElementById("stat-cmds");
     if (cmdsEl) cmdsEl.textContent = state.progress.totalCommands || 0;
@@ -482,7 +521,11 @@
     var host = document.getElementById("modules");
     host.innerHTML = "";
     filter = (filter || "").toLowerCase();
-    CURRICULUM.forEach(function (mod) {
+    var ordered = orderedCurriculum();
+    var ACTS = window.ACTS || [];
+    var currentActId = state.current ? (actFor(state.current.module) || {}).id : null;
+
+    function renderOneModule(mod) {
       var ms = moduleStats(mod);
       var lessonsText = mod.lessons.map(function (l) { return l.title; }).join(" ").toLowerCase();
       if (filter && mod.title.toLowerCase().indexOf(filter) === -1 && lessonsText.indexOf(filter) === -1) return;
@@ -519,7 +562,84 @@
         lessonsHost.appendChild(item);
       });
       host.appendChild(div);
+    }
+
+    function actProgress(act) {
+      var total = 0, done = 0;
+      act.modules.forEach(function (id) {
+        var m = null;
+        for (var i = 0; i < CURRICULUM.length; i++) if (CURRICULUM[i].id === id) m = CURRICULUM[i];
+        if (!m) return;
+        m.lessons.forEach(function (l) {
+          total++;
+          if (state.progress.lessons[l.id] && state.progress.lessons[l.id].done) done++;
+        });
+      });
+      return { total: total, done: done };
+    }
+
+    if (!ACTS.length || filter) {
+      // filtered search or no Acts: flat module list (no headers)
+      ordered.forEach(renderOneModule);
+      if (filter) orderedDrill().forEach(renderOneModule);
+      return;
+    }
+    ACTS.forEach(function (act) {
+      var ap = actProgress(act);
+      var pct = ap.total ? Math.round((ap.done / ap.total) * 100) : 0;
+      var sec = document.createElement("div");
+      sec.className = "act" + (currentActId === act.id ? " act-current" : "") + (ap.total && ap.done === ap.total ? " act-done" : "");
+      sec.innerHTML =
+        '<div class="act-head"><span class="act-check">' + (ap.total && ap.done === ap.total ? "✔" : "○") + "</span>" +
+        '<div class="act-info"><div class="act-title">' + escapeHTML(act.title) + "</div>" +
+        '<div class="act-payoff">' + escapeHTML(act.payoff) + " · " + ap.done + "/" + ap.total + " · " + pct + "%</div></div></div>" +
+        '<div class="act-modules"></div>';
+      var modHost = sec.querySelector(".act-modules");
+      var realHost = host;
+      host = modHost; // render modules into this Act's container
+      act.modules.forEach(function (id) {
+        for (var i = 0; i < CURRICULUM.length; i++) if (CURRICULUM[i].id === id) renderOneModule(CURRICULUM[i]);
+      });
+      host = realHost;
+      realHost.appendChild(sec);
     });
+    // safety net: modules not in any Act
+    ordered.forEach(function (m) {
+      var listed = ACTS.some(function (a) { return a.modules.indexOf(m.id) !== -1; });
+      if (!listed) renderOneModule(m);
+    });
+    // Drill Bank: optional boss fights, never blocking, own progress count
+    var drill = orderedDrill();
+    if (drill.length) {
+      var dp = drillProgress();
+      var dpct = dp.total ? Math.round((dp.done / dp.total) * 100) : 0;
+      var dsec = document.createElement("div");
+      dsec.className = "act drill" + (dp.total && dp.done === dp.total ? " act-done" : "");
+      dsec.innerHTML =
+        '<div class="act-head"><span class="act-check">' + (dp.total && dp.done === dp.total ? "✔" : "🥋") + "</span>" +
+        '<div class="act-info"><div class="act-title">Drill Bank · Boss Fights</div>' +
+        '<div class="act-payoff">optional · never blocks Next · ' + dp.done + "/" + dp.total + " · " + dpct + "%</div></div></div>" +
+        '<div class="act-modules"></div>';
+      var dHost = dsec.querySelector(".act-modules");
+      var savedHost = host;
+      host = dHost;
+      drill.forEach(function (b) {
+        var bossAct = null;
+        if (window.ACTS) {
+          for (var i = 0; i < window.ACTS.length; i++) if (window.ACTS[i].id === b.actId) bossAct = window.ACTS[i];
+        }
+        renderOneModule(b);
+        if (bossAct) {
+          var lastMod = dHost.lastChild;
+          if (lastMod) {
+            var meta = lastMod.querySelector(".module-meta");
+            if (meta) meta.textContent = b.lessons.length + " fights · after " + bossAct.title;
+          }
+        }
+      });
+      host = savedHost;
+      savedHost.appendChild(dsec);
+    }
   }
 
   /* ---------------- lesson panel ---------------- */
@@ -569,8 +689,16 @@
       "</div>" +
       '<div class="next-row"><button class="btn" id="btn-next">Next lesson →</button></div>';
 
+    var act = actFor(mod);
+    var bossLabel = null;
+    if (!act && isBossMod(mod) && window.ACTS) {
+      for (var ai = 0; ai < window.ACTS.length; ai++) {
+        if (window.ACTS[ai].id === mod.actId) bossLabel = "🥋 Drill Bank · after " + window.ACTS[ai].title;
+      }
+      if (!bossLabel) bossLabel = "🥋 Drill Bank";
+    }
     host.innerHTML =
-      '<div class="crumb"><span class="crumb-glyph">' + escapeHTML(moduleGlyph(mod)) + "</span>" + escapeHTML(mod.title) + "</div>" +
+      '<div class="crumb"><span class="crumb-glyph">' + escapeHTML(moduleGlyph(mod)) + "</span>" + escapeHTML(mod.title) + (act ? ' <span class="crumb-act">· ' + escapeHTML(act.title) + "</span>" : "") + (bossLabel ? ' <span class="crumb-act">· ' + escapeHTML(bossLabel) + "</span>" : "") + "</div>" +
       '<h2 class="lesson-title">' + lesson.title + "</h2>" +
       '<div class="objective">◆ ' + escapeHTML(lesson.objective) + "</div>" +
       '<div class="theory">' + formatTheory(lesson.theory) + "</div>" +
@@ -613,16 +741,21 @@
     var mod = state.current.module, lesson = state.current.lesson;
     var li = mod.lessons.indexOf(lesson);
     if (li < mod.lessons.length - 1) return selectLesson(mod, mod.lessons[li + 1]);
-    var mi = CURRICULUM.indexOf(mod);
-    if (mi < CURRICULUM.length - 1) return selectLesson(CURRICULUM[mi + 1], CURRICULUM[mi + 1].lessons[0]);
+    if (isBossMod(mod)) { toast("Boss cleared 🥋 — pick your next fight in the Drill Bank"); return; }
+    var ordered = orderedCurriculum();
+    var mi = ordered.indexOf(mod);
+    if (mi < ordered.length - 1) return selectLesson(ordered[mi + 1], ordered[mi + 1].lessons[0]);
+    toast("Curriculum complete 🎓 — the Drill Bank awaits");
   }
 
   function prevLesson() {
     var mod = state.current.module, lesson = state.current.lesson;
     var li = mod.lessons.indexOf(lesson);
     if (li > 0) return selectLesson(mod, mod.lessons[li - 1]);
-    var mi = CURRICULUM.indexOf(mod);
-    if (mi > 0) { var pm = CURRICULUM[mi - 1]; return selectLesson(pm, pm.lessons[pm.lessons.length - 1]); }
+    if (isBossMod(mod)) return;
+    var ordered = orderedCurriculum();
+    var mi = ordered.indexOf(mod);
+    if (mi > 0) { var pm = ordered[mi - 1]; return selectLesson(pm, pm.lessons[pm.lessons.length - 1]); }
   }
 
   /* ---------------- toast ---------------- */
@@ -641,7 +774,12 @@
 
   function buildFlat() {
     state.flat = [];
-    CURRICULUM.forEach(function (mod) {
+    state.validIds = {};
+    orderedCurriculum().forEach(function (mod) {
+      mod.lessons.forEach(function (lesson) { state.flat.push({ module: mod, lesson: lesson }); state.validIds[lesson.id] = true; });
+    });
+    // bosses join flat nav (h/l + palette find them) but stay out of validIds (Learn total stays 118)
+    orderedDrill().forEach(function (mod) {
       mod.lessons.forEach(function (lesson) { state.flat.push({ module: mod, lesson: lesson }); });
     });
   }
@@ -687,8 +825,20 @@
   }
   function moveModule(dir) {
     var cur = state.flat[ui.navIndex].module;
-    var mi = CURRICULUM.indexOf(cur);
-    var target = CURRICULUM[mi + dir];
+    if (isBossMod(cur)) {
+      var drill = orderedDrill();
+      var bi = drill.indexOf(cur);
+      var btarget = drill[bi + dir];
+      if (!btarget) return;
+      for (var i = 0; i < state.flat.length; i++) {
+        if (state.flat[i].module === btarget) { ui.navIndex = i; break; }
+      }
+      refreshNav();
+      return;
+    }
+    var ordered = orderedCurriculum();
+    var mi = ordered.indexOf(cur);
+    var target = ordered[mi + dir];
     if (!target) return;
     for (var i = 0; i < state.flat.length; i++) {
       if (state.flat[i].module === target) { ui.navIndex = i; break; }
@@ -749,11 +899,21 @@
       { kind: "action", icon: "~", title: "Random pro tip", action: function () { closeOverlay(); window.openRandomTip && window.openRandomTip(); } },
       { kind: "action", icon: "?", title: "Keyboard shortcuts", action: openHelp }
     ];
-    CURRICULUM.forEach(function (mod) {
+    orderedCurriculum().forEach(function (mod) {
       var glyph = moduleGlyph(mod);
       mod.lessons.forEach(function (lesson) {
         items.push({
           kind: "lesson", icon: glyph, title: lesson.title, sub: mod.title,
+          module: mod, lesson: lesson,
+          action: function () { closeOverlay(); selectLesson(mod, lesson); }
+        });
+      });
+    });
+    orderedDrill().forEach(function (mod) {
+      var glyph = moduleGlyph(mod);
+      mod.lessons.forEach(function (lesson) {
+        items.push({
+          kind: "drill", icon: glyph, title: lesson.title, sub: "🥋 " + mod.title,
           module: mod, lesson: lesson,
           action: function () { closeOverlay(); selectLesson(mod, lesson); }
         });

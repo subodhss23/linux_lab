@@ -283,8 +283,8 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
     // 1. initial state
     r = JSON.parse(await ev("JSON.stringify({mods:document.querySelectorAll('.module').length,lessons:document.querySelectorAll('.lesson-item').length,mode:document.getElementById('mode-indicator').textContent,focus:document.activeElement&&document.activeElement.id})"));
-    assert("39 modules rendered", r.mods === 39, r.mods);
-    assert("300 lessons listed", r.lessons === 300, r.lessons);
+    assert("34 modules rendered (30 learn + 4 bosses)", r.mods === 34, r.mods);
+    assert("134 lessons listed (118 learn + 16 drill)", r.lessons === 134, r.lessons);
     assert("starts in TERMINAL mode", r.mode === "TERMINAL", r.mode);
 
     // 2. Escape enters navigation mode
@@ -392,7 +392,7 @@ function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
     // 21. Reset progress keeps Total cmds but clears XP/tasks
     r = JSON.parse(await ev(`(function(){window.confirm=function(){return true};var cmds=document.getElementById('stat-cmds').textContent;document.getElementById('btn-reset-progress').click();return JSON.stringify({kept:document.getElementById('stat-cmds').textContent,expected:cmds,xp:document.getElementById('stat-xp').textContent,done:document.getElementById('overall-text').textContent});})()`));
     assert("Reset progress keeps Total cmds", r.kept === r.expected && parseInt(r.kept, 10) > 0, r);
-    assert("Reset progress clears XP and tasks", r.xp === "0" && /^0 \/ 300/.test(r.done), r);
+    assert("Reset progress clears XP and tasks", r.xp === "0" && /^0 \/ 118/.test(r.done), r);
 
     // 22. Reset machine factory-clears everything including Total cmds
     r = JSON.parse(await ev(`(function(){window.prompt=function(){return 'RESET'};document.getElementById('btn-reset-machine').click();return JSON.stringify({cmds:document.getElementById('stat-cmds').textContent,xp:document.getElementById('stat-xp').textContent});})()`));

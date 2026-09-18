@@ -165,7 +165,7 @@
         var parent = m.fs.dirname(m.fs.resolve(g.rest[i], m.cwd, m.env));
         var pn = m.fs.stat(parent, "/", m.env);
         if (!ctx.sudo && pn && !canAccess(m, pn, "w")) return fail("mkdir: cannot create directory '" + g.rest[i] + "': Permission denied");
-        m.fs.mkdir(g.rest[i], m.cwd, m.env, g.opts.p);
+        m.fs.mkdir(g.rest[i], m.cwd, m.env, g.opts.p, ctx.sudo ? "root" : m.user);
         if (g.opts.v) made.push("mkdir: created directory '" + g.rest[i] + "'");
       } catch (e) { return fail("mkdir: " + e.message); }
     }

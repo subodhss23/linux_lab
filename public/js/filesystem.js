@@ -126,9 +126,10 @@
   };
 
   /* -------- creation -------- */
-  VFS.prototype.mkdir = function (path, cwd, env, recursive) {
+  VFS.prototype.mkdir = function (path, cwd, env, recursive, owner) {
     var abs = this.resolve(path, cwd, env);
     var parts = abs.split("/").filter(Boolean);
+    var who = owner || (env && env.USER) || "root";
     var cur = this.root, self = this;
     for (var i = 0; i < parts.length; i++) {
       var name = parts[i];
@@ -136,7 +137,7 @@
         if (i !== parts.length - 1 && !recursive) {
           throw new Error("cannot create directory '" + path + "': No such file or directory");
         }
-        cur.children[name] = self._node(name, DIR);
+        cur.children[name] = self._node(name, DIR, { owner: who, group: who, mode: 0o755 });
         cur.mtime = now();
       } else {
         var child = cur.children[name];

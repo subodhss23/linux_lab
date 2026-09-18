@@ -90,7 +90,7 @@ export const MARKUP = `
         <h2>Welcome</h2>
         <p>Fully keyboard-driven: press <span class="key">Esc</span> for navigation mode, <span class="key">Ctrl</span>+<span class="key">K</span> to jump to any lesson, or <span class="key">Ctrl</span>+<span class="key">T</span> for pro tips.</p>
         <ul>
-          <li>39 modules · 300 labs · 9 combo reviews</li>
+          <li>30 modules · 4 acts · Drill Bank boss fights</li>
           <li>Auto-graded, hands-on tasks</li>
           <li>Pro tips from senior engineers</li>
         </ul>

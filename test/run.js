@@ -55,6 +55,11 @@ group("Permissions");
   check("chmod symbolic", (m.fs.stat("/tmp/p.txt", "/", m.env).mode & 0o100) !== 0);
   run("chmod 1777 /tmp");
   check("sticky bit", (m.fs.stat("/tmp", "/", m.env).mode & 0o1000) !== 0);
+  run("mkdir -p ~/drillnest/inner");
+  check("mkdir -p nested via ~ succeeds", m.fs.exists("/home/sam/drillnest/inner", "/", m.env, "dir"));
+  check("mkdir sets owner to current user", m.fs.stat("/home/sam/drillnest/inner", "/", m.env).owner === "sam");
+  run("sudo mkdir -p /srv/sudodir/sub");
+  check("sudo mkdir stays root-owned", m.fs.stat("/srv/sudodir/sub", "/", m.env).owner === "root");
 }
 
 /* -------------------- text processing -------------------- */
@@ -270,9 +275,11 @@ group("Extended tooling");
 group("Curriculum integrity");
 {
   require(path.join(__dirname, "..", "public", "js", "curriculum.js"));
-  require(path.join(__dirname, "..", "public", "js", "curriculum-extra.js"));
+  // NOTE (Part 1): curriculum-extra.js is ARCHIVED — 91 deepening + 72 review
+  // lessons hidden from UI, file kept on disk. Integrity checks cover Learn path only.
+  require(path.join(__dirname, "..", "public", "js", "drillbank.js"));
   const curr = global.CURRICULUM;
-  check("39 modules (30 + 9 reviews)", curr.length === 39, "got " + curr.length);
+  check("30 learn modules (extra archived)", curr.length === 30, "got " + curr.length);
   let lessons = 0, hours = 0;
   curr.forEach((mod) => {
     hours += mod.hours;
@@ -282,12 +289,41 @@ group("Curriculum integrity");
       if (!l.task.prompt || !l.task.hint || !l.task.solution) { failed++; failures.push("lesson missing task fields: " + l.id); }
     });
   });
-  check("total hours >= 80", hours >= 80, "got " + hours);
-  check("300 lessons", lessons === 300, "got " + lessons);
+  check("total hours >= 60", hours >= 60, "got " + hours);
+  check("118 learn lessons (3-4 per chapter)", lessons === 118, "got " + lessons);
   let allIds = new Set();
   let dup = false;
   curr.forEach((mod) => mod.lessons.forEach((l) => { if (allIds.has(l.id)) dup = true; allIds.add(l.id); }));
   check("lesson ids unique", !dup);
+  // 4-Act structure (Part 1): every module in exactly one Act
+  const acts = global.ACTS || [];
+  check("4 acts defined", acts.length === 4, "got " + acts.length);
+  const actIds = [];
+  acts.forEach((a) => actIds.push.apply(actIds, a.modules));
+  check("acts cover all 30 modules exactly once",
+    actIds.length === 30 && curr.every((m) => actIds.indexOf(m.id) !== -1),
+    "act modules: " + actIds.length);
+  // Act 2 starts with bootstrap (M17/M18 before M09)
+  const act2 = acts[1] || { modules: [] };
+  check("act2 leads with M17 bootstrap", act2.modules[0] === "m17" && act2.modules[1] === "m18",
+    "got " + act2.modules.slice(0, 3).join(","));
+  // Drill Bank (Part 4): 4 bosses x 4 fights, ids namespaced bN-lM
+  const drill = global.DRILLBANK || [];
+  check("4 boss fights", drill.length === 4, "got " + drill.length);
+  let fights = 0;
+  drill.forEach((b) => {
+    fights += b.lessons.length;
+    if (!b.actId || !acts.some((a) => a.id === b.actId)) { failed++; failures.push("boss missing valid actId: " + b.id); }
+    b.lessons.forEach((l) => {
+      if (!/^b[1-4]-l[1-4]$/.test(l.id)) { failed++; failures.push("bad drill id: " + l.id); }
+      if (allIds.has(l.id)) { failed++; failures.push("drill id collides with learn: " + l.id); }
+      allIds.add(l.id);
+      if (!l.task || typeof l.task.check !== "function") { failed++; failures.push("drill missing task check: " + l.id); }
+      if (!l.task.prompt || !l.task.hint || !l.task.solution) { failed++; failures.push("drill missing task fields: " + l.id); }
+      if (!l.examples || l.examples.length < 1) { failed++; failures.push("drill missing examples: " + l.id); }
+    });
+  });
+  check("16 drill fights (4 per boss)", fights === 16, "got " + fights);
 }
 
 /* -------------------- solution walkthrough (end-to-end) -------------------- */
@@ -312,6 +348,25 @@ group("Solution walkthrough (each lesson solution passes its own check)");
   check("all lesson solutions satisfy their checks", broke.length === 0, broke.join(" | "));
   if (broke.length) broke.forEach((b) => failures.push("walkthrough: " + b));
   console.log("  (" + solved + " lessons auto-solved)");
+  // Drill Bank walkthrough: bosses run on the post-Learn machine (same order a
+  // graduate meets them) — every fight solution must satisfy its own check.
+  let dsolved = 0;
+  const dbroke = [];
+  const drill = global.DRILLBANK || [];
+  drill.forEach((boss) => {
+    boss.lessons.forEach((lesson) => {
+      const sol = lesson.task.solution;
+      const res = sh.exec(sol);
+      const env = { fs: m.fs, m: m, cmd: sol, result: res, history: m.history };
+      let r;
+      try { r = lesson.task.check(env); } catch (e) { r = { ok: false, reason: "check threw: " + e.message }; }
+      if (r === true || (r && r.ok)) { solved++; dsolved++; }
+      else dbroke.push(lesson.id + " [" + lesson.title + "] -> " + ((r && r.reason) || "failed") + "  (solution: " + sol.split("\n")[0].slice(0, 70) + ")");
+    });
+  });
+  check("all drill solutions satisfy their checks", dbroke.length === 0, dbroke.join(" | "));
+  if (dbroke.length) dbroke.forEach((b) => failures.push("drill walkthrough: " + b));
+  console.log("  (" + dsolved + " drill fights auto-solved)");
 }
 
 /* -------------------- v2 shell wiring (Total cmds + resets + header) -------------------- */

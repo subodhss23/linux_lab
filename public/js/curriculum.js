@@ -454,14 +454,9 @@
 
 /* ============================ MODULE 14 ============================ */
 {
-  id: "m14", title: "Docker & Containers", icon: "🐳", hours: 3.5,
-  blurb: "Build images, run containers, exec in, read logs, use compose.",
+  id: "m14", title: "Docker & Containers", icon: "🐳", hours: 3,
+  blurb: "Run containers, read logs, build images, use compose.",
   lessons: [
-    { id: "m14-l1", title: "Images and containers",
-      objective: "Understand the docker object model.",
-      theory: T("- An **image** is a read-only template; a **container** is a running instance.", "- `docker images` list images", "- `docker ps` running containers, `docker ps -a` all", "- `docker pull nginx` fetch an image"),
-      examples: [ { cmd: "docker images", desc: "List images" }, { cmd: "docker pull nginx", desc: "Download image" } ],
-      task: { prompt: "List all local Docker images.", hint: "docker images", solution: "docker images", check: H.ran(/^docker\s+images/) } },
     { id: "m14-l2", title: "Running containers",
       objective: "Start detached containers with ports.",
       theory: T("`docker run [flags] IMAGE`", "- `-d` detached (background)", "- `-p 8080:80` publish host:container port", "- `--name web` name it", "- `-v /host:/container` bind a volume", "- `--rm` auto-remove on exit"),
@@ -488,8 +483,8 @@
 
 /* ============================ MODULE 15 ============================ */
 {
-  id: "m15", title: "Web Stack: Build & Deploy", icon: "🚀", hours: 4,
-  blurb: "nginx, reverse proxy, systemd services, TLS and git deploys.",
+  id: "m15", title: "Web Stack: Build & Deploy", icon: "🚀", hours: 3,
+  blurb: "nginx, reverse proxy, systemd services and git deploys.",
   lessons: [
     { id: "m15-l1", title: "nginx basics",
       objective: "Serve content and validate configuration.",
@@ -510,12 +505,6 @@
         "Create `/etc/systemd/system/app.service`, then `daemon-reload`, `enable --now app`."),
       examples: [ { cmd: "systemctl status app", desc: "App status" }, { cmd: "journalctl -u app -f", desc: "App logs" } ],
       task: { prompt: "Reload systemd and start the app service so it is active.", hint: "sudo systemctl daemon-reload && sudo systemctl start app", solution: "sudo systemctl daemon-reload && sudo systemctl start app", check: H.serviceActive("app.service") } },
-    { id: "m15-l4", title: "HTTPS with Let's Encrypt",
-      objective: "Obtain a TLS certificate automatically.",
-      theory: T("`certbot` talks to Let's Encrypt and configures nginx:", "`sudo certbot --nginx -d app.example.com`",
-        "It renews automatically via a systemd timer. HTTPS on 443 is now standard for any public site."),
-      examples: [ { cmd: "sudo certbot --nginx -d app.example.com", desc: "Get cert" }, { cmd: "systemctl list-timers certbot.timer", desc: "Renewal timer" } ],
-      task: { prompt: "Request a TLS certificate for app.example.com using certbot with the nginx plugin.", hint: "sudo certbot --nginx -d app.example.com", solution: "sudo certbot --nginx -d app.example.com", check: H.ran(/^sudo\s+certbot\s+--nginx\s+-d\s+app\.example\.com/) } },
     { id: "m15-l5", title: "Deploying with git",
       objective: "Ship code to the server reproducibly.",
       theory: T("A simple deploy: clone the repo, install deps, restart the service.",
@@ -553,8 +542,8 @@
 
 /* ============================ MODULE 17 ============================ */
 {
-  id: "m17", title: "Server Bootstrap: Day-0 Checklist", icon: "🧰", hours: 3,
-  blurb: "Everything to do right after a fresh Ubuntu Server install.",
+  id: "m17", title: "Server Bootstrap: Day-0 Checklist", icon: "🧰", hours: 2,
+  blurb: "Patch, admin account, SSH lockdown, firewall — the day-0 spine.",
   lessons: [
     { id: "m17-l1", title: "Update the system first",
       objective: "Patch a fresh install before exposing it to the internet.",
@@ -565,13 +554,6 @@
         "Patch on day 0, then automate it with `unattended-upgrades`."),
       examples: [ { cmd: "sudo apt update", desc: "Refresh index" }, { cmd: "sudo apt upgrade -y", desc: "Apply upgrades" }, { cmd: "sudo apt autoremove", desc: "Clean up" } ],
       task: { prompt: "Update the package index and apply available upgrades.", hint: "sudo apt update && sudo apt upgrade -y", solution: "sudo apt update && sudo apt upgrade -y", check: H.all(H.ran(/apt\s+update/), H.ran(/apt\s+upgrade/)) } },
-    { id: "m17-l2", title: "Name the server and set the clock",
-      objective: "Set a meaningful hostname and the correct timezone.",
-      theory: T("`sudo hostnamectl set-hostname NAME` sets the machine name (useful in logs and `ssh NAME`).",
-        "`sudo timedatectl set-timezone REGION/CITY` sets the timezone so log timestamps match reality.",
-        "`timedatectl` also shows whether NTP is syncing the clock."),
-      examples: [ { cmd: "hostnamectl set-hostname prod-web", desc: "Rename" }, { cmd: "timedatectl set-timezone America/New_York", desc: "Timezone" } ],
-      task: { prompt: "Set the hostname to 'prod-web' and the timezone to America/New_York.", hint: "sudo hostnamectl set-hostname ... && sudo timedatectl set-timezone ...", solution: "sudo hostnamectl set-hostname prod-web && sudo timedatectl set-timezone America/New_York", check: function (env) { if (env.m.hostname !== "prod-web") return bad("Hostname is " + env.m.hostname); if (env.m.timezone !== "America/New_York") return bad("Timezone set incorrectly"); return ok; } } },
     { id: "m17-l3", title: "Create yourself an admin account",
       objective: "Stop using root; create a sudo-enabled user.",
       theory: T("Best practice: never log in as root. Create a user, give them sudo, then lock root down.",
@@ -593,22 +575,14 @@
         "`sudo ufw allow OpenSSH` (or `22/tcp`) keeps your session alive.",
         "`sudo ufw enable` turns it on; `sudo ufw status verbose` shows the rules."),
       examples: [ { cmd: "sudo ufw allow OpenSSH", desc: "Allow SSH" }, { cmd: "sudo ufw enable", desc: "Enable" }, { cmd: "sudo ufw status verbose", desc: "Review" } ],
-      task: { prompt: "Allow OpenSSH and enable the firewall.", hint: "ufw allow OpenSSH && ufw enable", solution: "sudo ufw allow OpenSSH && sudo ufw enable", check: H.all(H.firewallOn(), function (env) { return env.m.firewall.rules.some(function (r) { return /OpenSSH|22/.test(r.rule || ""); }) ? ok : bad("SSH is not allowed in the firewall"); }) } },
-    { id: "m17-l6", title: "Add a swap file",
-      objective: "Give a small server breathing room under memory pressure.",
-      theory: T("On low-RAM servers a swap file prevents the OOM killer from striking.",
-        "1. `sudo fallocate -l 2G /swapfile`", "2. `sudo chmod 600 /swapfile`",
-        "3. `sudo mkswap /swapfile`", "4. `sudo swapon /swapfile`",
-        "5. add `/swapfile none swap sw 0 0` to `/etc/fstab` so it survives reboot."),
-      examples: [ { cmd: "sudo fallocate -l 2G /swapfile", desc: "Create" }, { cmd: "sudo mkswap /swapfile", desc: "Format" }, { cmd: "sudo swapon /swapfile", desc: "Enable" } ],
-      task: { prompt: "Create a 2G swap file at /swapfile, format it, enable it, and add it to /etc/fstab.", hint: "fallocate → chmod 600 → mkswap → swapon → append to fstab", solution: "sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab", check: H.all(H.file("/swapfile"), H.swap("/swapfile"), H.content("/etc/fstab", "/swapfile")) } }
+      task: { prompt: "Allow OpenSSH and enable the firewall.", hint: "ufw allow OpenSSH && ufw enable", solution: "sudo ufw allow OpenSSH && sudo ufw enable", check: H.all(H.firewallOn(), function (env) { return env.m.firewall.rules.some(function (r) { return /OpenSSH|22/.test(r.rule || ""); }) ? ok : bad("SSH is not allowed in the firewall"); }) } }
   ]
 },
 
 /* ============================ MODULE 18 ============================ */
 {
-  id: "m18", title: "Ubuntu Server Essentials & Packages", icon: "📦", hours: 2.5,
-  blurb: "Package management and the tools every server should have.",
+  id: "m18", title: "Ubuntu Server Essentials & Packages", icon: "📦", hours: 2,
+  blurb: "Install tools, inspect packages, run services — apt in daily use.",
   lessons: [
     { id: "m18-l1", title: "Install your essential toolbox",
       objective: "Install the tools you will use every day.",
@@ -631,13 +605,6 @@
         "Run `apt update` before installs; run `apt upgrade` regularly."),
       examples: [ { cmd: "apt list --installed", desc: "Installed" }, { cmd: "apt-cache policy nginx", desc: "Versions" }, { cmd: "sudo apt clean", desc: "Free space" } ],
       task: { prompt: "List installed packages using apt.", hint: "apt list --installed", solution: "apt list --installed", check: H.ran(/apt\s+list/) } },
-    { id: "m18-l4", title: "Remove packages cleanly",
-      objective: "Uninstall software and its configuration safely.",
-      theory: T("`sudo apt remove PKG` removes the package but keeps config.",
-        "`sudo apt purge PKG` also removes config files.",
-        "`sudo apt autoremove` cleans orphaned dependencies. Never remove a package you still need!"),
-      examples: [ { cmd: "sudo apt remove -y tmux", desc: "Remove" }, { cmd: "sudo apt autoremove -y", desc: "Clean" } ],
-      task: { prompt: "Uninstall the tmux package.", hint: "sudo apt remove -y tmux", solution: "sudo apt remove -y tmux", check: H.notInstalled("tmux") } },
     { id: "m18-l5", title: "Install and enable a service",
       objective: "Add a daemon and start it at boot.",
       theory: T("Install: `sudo apt install -y fail2ban`. Then enable at boot and start now:",
@@ -649,8 +616,8 @@
 
 /* ============================ MODULE 19 ============================ */
 {
-  id: "m19", title: "PostgreSQL in Production", icon: "🐘", hours: 3,
-  blurb: "Run, secure, inspect and back up a PostgreSQL database server.",
+  id: "m19", title: "PostgreSQL in Production", icon: "🐘", hours: 2.5,
+  blurb: "Run, provision, inspect and back up PostgreSQL.",
   lessons: [
     { id: "m19-l1", title: "Start PostgreSQL and connect",
       objective: "Boot the database and query its version.",
@@ -680,14 +647,7 @@
         "`sudo -u postgres pg_dump appdb > /backups/appdb.sql`.",
         "Restore with `psql -d appdb -f appdb.sql`. This is the foundation of DB backups (Module 24)."),
       examples: [ { cmd: "sudo mkdir -p /backups", desc: "Prep" }, { cmd: "sudo -u postgres pg_dump appdb > /backups/appdb.sql", desc: "Dump" } ],
-      task: { prompt: "Back up the appdb database to /backups/appdb.sql with pg_dump.", hint: "sudo -u postgres pg_dump appdb > /backups/appdb.sql", solution: "sudo mkdir -p /backups && sudo -u postgres pg_dump appdb > /backups/appdb.sql", check: H.file("/backups/appdb.sql") } },
-    { id: "m19-l5", title: "Confirm the database is listening",
-      objective: "Verify PostgreSQL binds to the expected port.",
-      theory: T("PostgreSQL listens on TCP 5432 by default. Confirm with:",
-        "`sudo ss -tlpn | grep 5432` or `pg_isready`.",
-        "For remote access you must edit `postgresql.conf` (`listen_addresses`) and `pg_hba.conf` — never open 5432 to the world without TLS and strong auth."),
-      examples: [ { cmd: "sudo ss -tlpn | grep 5432", desc: "Check port" }, { cmd: "pg_isready", desc: "Readiness" } ],
-      task: { prompt: "Confirm PostgreSQL is listening on port 5432 using ss.", hint: "sudo ss -tlpn | grep 5432", solution: "sudo ss -tlpn | grep 5432", check: H.ran(/ss\s+-tlpn/) } }
+      task: { prompt: "Back up the appdb database to /backups/appdb.sql with pg_dump.", hint: "sudo -u postgres pg_dump appdb > /backups/appdb.sql", solution: "sudo mkdir -p /backups && sudo -u postgres pg_dump appdb > /backups/appdb.sql", check: H.file("/backups/appdb.sql") } }
   ]
 },
 
@@ -728,8 +688,8 @@
 
 /* ============================ MODULE 21 ============================ */
 {
-  id: "m21", title: "Monitoring & Observability", icon: "📈", hours: 3,
-  blurb: "Watch load, memory, disk, CPU and logs before users notice.",
+  id: "m21", title: "Monitoring & Observability", icon: "📈", hours: 2,
+  blurb: "Watch load, disk, logs and app health before users notice.",
   lessons: [
     { id: "m21-l1", title: "Load average and uptime",
       objective: "Read the first health signal.",
@@ -737,24 +697,12 @@
         "`nproc` shows core count so you can judge load relative to capacity."),
       examples: [ { cmd: "uptime", desc: "Load" }, { cmd: "nproc", desc: "Cores" } ],
       task: { prompt: "Show the current load average and uptime.", hint: "uptime", solution: "uptime", check: H.ran(/^uptime/) } },
-    { id: "m21-l2", title: "CPU sampling with mpstat and sar",
-      objective: "Measure CPU over time, not just one instant.",
-      theory: T("`top` is real-time; `mpstat 1 3` samples per-CPU stats 3 times; `sar -u 1 3` samples system CPU.",
-        "Look at `%iowait` (disk stalls) vs `%sys` (kernel) vs `%user`."),
-      examples: [ { cmd: "mpstat 1 3", desc: "Per-CPU" }, { cmd: "sar 1 3", desc: "System CPU" }, { cmd: "iostat -x 1", desc: "Disk" } ],
-      task: { prompt: "Sample per-CPU statistics three times with mpstat.", hint: "mpstat 1 3", solution: "mpstat 1 3", check: H.ran(/mpstat/) } },
     { id: "m21-l3", title: "Disk and inode pressure",
       objective: "Catch full disks and exhausted inodes.",
       theory: T("`df -h` shows space; `df -i` shows **inodes**. You can run out of inodes before space — many tiny files cause this.",
         "`du -sh *` finds the heavy directories."),
       examples: [ { cmd: "df -h", desc: "Space" }, { cmd: "df -i", desc: "Inodes" }, { cmd: "du -sh /var/* | sort -h", desc: "Big dirs" } ],
       task: { prompt: "Check inode usage on all filesystems.", hint: "df -i", solution: "df -i", check: H.ran(/df\s+-i/) } },
-    { id: "m21-l4", title: "Disk health with SMART",
-      objective: "Predict disk failures before they happen.",
-      theory: T("`sudo smartctl -a /dev/sda` reads the drive's SMART data: reallocated sectors, temperature, and an overall PASSED/FAILED verdict.",
-        "Monitor this on a schedule; a rising reallocated-sector count means replace the disk."),
-      examples: [ { cmd: "sudo smartctl -a /dev/sda", desc: "SMART report" } ],
-      task: { prompt: "Show the SMART health report for /dev/sda.", hint: "sudo smartctl -a /dev/sda", solution: "sudo smartctl -a /dev/sda", check: H.ran(/smartctl/) } },
     { id: "m21-l5", title: "Triage with journalctl by priority",
       objective: "Find errors quickly in the journal.",
       theory: T("`journalctl -p err` shows only error-level messages; `-b` limits to the current boot.",
@@ -773,16 +721,9 @@
 
 /* ============================ MODULE 22 ============================ */
 {
-  id: "m22", title: "Performance & Load Testing", icon: "🏎️", hours: 3,
-  blurb: "Measure before you tune; benchmark with ab, wrk and hey.",
+  id: "m22", title: "Performance & Load Testing", icon: "🏎️", hours: 2.5,
+  blurb: "Measure before you tune; load-test with hey, time with curl.",
   lessons: [
-    { id: "m22-l1", title: "Baseline with ApacheBench",
-      objective: "Measure requests per second and latency under load.",
-      theory: T("`ab -n 1000 -c 50 http://host/` sends 1000 requests with 50 concurrent connections.",
-        "Key numbers: **Requests per second**, **Time per request**, and the latency percentiles (50/90/99%).",
-        "A p99 much larger than the mean means a long tail — a common user-experience killer."),
-      examples: [ { cmd: "ab -n 1000 -c 50 http://localhost/", desc: "Benchmark" }, { cmd: "ab -n 5000 -c 100 http://localhost/", desc: "Bigger load" } ],
-      task: { prompt: "Benchmark http://localhost/ with 1000 requests and 50 concurrent connections.", hint: "ab -n 1000 -c 50 http://localhost/", solution: "ab -n 1000 -c 50 http://localhost/", check: H.ran(/ab\s+.*-n\s*1000/) } },
     { id: "m22-l2", title: "Modern load testing with hey and wrk",
       objective: "Use faster, more modern benchmark tools.",
       theory: T("`hey -n 500 -c 20 URL` is a simple Go benchmark with a clear histogram.",
@@ -815,8 +756,8 @@
 
 /* ============================ MODULE 23 ============================ */
 {
-  id: "m23", title: "Automation & Infrastructure as Code", icon: "🤖", hours: 3.5,
-  blurb: "Automate everything: robust scripts, cron, timers, Ansible, Make.",
+  id: "m23", title: "Automation & Infrastructure as Code", icon: "🤖", hours: 2.5,
+  blurb: "Automate everything: robust scripts, functions, timers, Ansible.",
   lessons: [
     { id: "m23-l1", title: "Robust scripts: set -euo pipefail",
       objective: "Write scripts that fail loudly instead of silently.",
@@ -831,46 +772,26 @@
         "Positional params: `$1 $2`, all args `$@`, count `$#`. Validate inputs at the top of the script."),
       examples: [ { cmd: "printf '#!/bin/bash\\ngreet() { echo \"Hello $1\"; }\\ngreet \"$1\"\\n' > greet.sh", desc: "Function" }, { cmd: "./greet.sh World", desc: "Run" } ],
       task: { prompt: "Create an executable ~/greet.sh containing a greet() function that uses $1.", hint: "Define greet() and call it with $1", solution: "printf '#!/bin/bash\\ngreet() { echo \"Hello $1\"; }\\ngreet \"$1\"\\n' > ~/greet.sh && chmod +x ~/greet.sh", check: H.all(H.content("/home/sam/greet.sh", "greet()"), H.content("/home/sam/greet.sh", "$1")) } },
-    { id: "m23-l3", title: "Schedule with cron",
-      objective: "Run a job on a repeating schedule.",
-      theory: T("Crontab fields: minute hour day month weekday command.",
-        "Install a job non-interactively: `echo '0 * * * * /path/job' | crontab -`.",
-        "Check with `crontab -l`. Cron is simple and everywhere, but has minimal logging."),
-      examples: [ { cmd: "echo '0 * * * * /home/sam/deploy.sh' | crontab -", desc: "Hourly" }, { cmd: "crontab -l", desc: "Verify" } ],
-      task: { prompt: "Schedule /home/sam/deploy.sh to run every hour with cron.", hint: "echo '0 * * * * /home/sam/deploy.sh' | crontab -", solution: "echo '0 * * * * /home/sam/deploy.sh' | crontab -", check: H.cron(/deploy\.sh/, "0 * * * *") } },
     { id: "m23-l4", title: "systemd timers: the modern cron",
       objective: "Use timers for logging and dependency handling.",
       theory: T("A `.timer` unit triggers a `.service` unit. Benefits over cron: journal logging, `Persistent=true`, dependencies.",
         "`systemctl list-timers` shows upcoming runs; `sudo systemctl enable --now backup.timer` activates one."),
       examples: [ { cmd: "systemctl list-timers", desc: "List" }, { cmd: "sudo systemctl enable --now backup.timer", desc: "Enable" } ],
       task: { prompt: "List the timers and enable the backup.timer unit.", hint: "systemctl list-timers && systemctl enable backup.timer", solution: "systemctl list-timers && sudo systemctl enable backup.timer", check: H.serviceEnabled("backup.timer") } },
-    { id: "m23-l5", title: "One-off jobs with at",
-      objective: "Schedule a command to run once, later.",
-      theory: T("`at` runs a command once. `echo 'CMD' | at 02:00` schedules it; `atq` lists jobs; `atrm N` cancels.",
-        "Perfect for 'restart this at 3am' tasks. Ensure the `atd` daemon is running."),
-      examples: [ { cmd: "echo '/home/sam/deploy.sh' | at 02:00", desc: "Schedule" }, { cmd: "atq", desc: "List" } ],
-      task: { prompt: "Schedule /home/sam/deploy.sh to run once at 02:00 using at.", hint: "echo '/home/sam/deploy.sh' | at 02:00", solution: "echo '/home/sam/deploy.sh' | at 02:00", check: H.atJob(/deploy\.sh/) } },
     { id: "m23-l6", title: "Configuration management with Ansible",
       objective: "Run a playbook against many hosts.",
       theory: T("Ansible is agentless: it SSHes in and applies a **playbook** (YAML).",
         "A playbook is idempotent — safe to run repeatedly.",
         "`ansible all -m ping` tests connectivity; `ansible-playbook site.yml` applies a play; a PLAY RECAP summarises changes."),
       examples: [ { cmd: "ansible all -m ping", desc: "Test hosts" }, { cmd: "ansible-playbook site.yml", desc: "Apply" } ],
-      task: { prompt: "Create ~/site.yml (a minimal playbook) and run it with ansible-playbook.", hint: "Write YAML then ansible-playbook ~/site.yml", solution: "echo '---' > ~/site.yml && echo '- hosts: all' >> ~/site.yml && echo '  tasks: []' >> ~/site.yml && ansible-playbook ~/site.yml", check: function (env) { return env.m.ansible.lastPlay && /site\.yml/.test(env.m.ansible.lastPlay) ? ok : bad("No ansible playbook was run"); } } },
-    { id: "m23-l7", title: "Makefiles as a task runner",
-      objective: "Give repetitive commands a memorable name.",
-      theory: T("A `Makefile` groups tasks: `make deploy`, `make backup`, `make test`.",
-        "Targets run shell commands; `.PHONY` marks non-file targets.",
-        "A Makefile is a lightweight, language-agnostic task runner."),
-      examples: [ { cmd: "printf 'all:\\n\\techo building\\n' > Makefile", desc: "Create" }, { cmd: "make", desc: "Run" } ],
-      task: { prompt: "Create a Makefile in your home directory and run make.", hint: "cd ~ && write a Makefile then make", solution: "cd ~ && printf 'all:\\n\\techo building\\n' > Makefile && make", check: H.all(H.file("/home/sam/Makefile"), H.ran(/\bmake\b/)) } }
+      task: { prompt: "Create ~/site.yml (a minimal playbook) and run it with ansible-playbook.", hint: "Write YAML then ansible-playbook ~/site.yml", solution: "echo '---' > ~/site.yml && echo '- hosts: all' >> ~/site.yml && echo '  tasks: []' >> ~/site.yml && ansible-playbook ~/site.yml", check: function (env) { return env.m.ansible.lastPlay && /site\.yml/.test(env.m.ansible.lastPlay) ? ok : bad("No ansible playbook was run"); } } }
   ]
 },
 
 /* ============================ MODULE 24 ============================ */
 {
-  id: "m24", title: "Backups, Restore & Disaster Recovery", icon: "🗄️", hours: 3,
-  blurb: "The 3-2-1 rule, rsync, database dumps, restic and tested restores.",
+  id: "m24", title: "Backups, Restore & Disaster Recovery", icon: "🗄️", hours: 2.5,
+  blurb: "The 3-2-1 rule: rsync, restic, tested restores, offsite.",
   lessons: [
     { id: "m24-l1", title: "The 3-2-1 rule and rsync",
       objective: "Copy data safely and incrementally.",
@@ -879,13 +800,6 @@
         "The trailing slashes matter: `src/` means the *contents* of src."),
       examples: [ { cmd: "sudo mkdir -p /backups/home", desc: "Prep" }, { cmd: "sudo rsync -a /home/sam/ /backups/home/", desc: "Mirror" } ],
       task: { prompt: "Mirror /home/sam/ into /backups/home/ with rsync.", hint: "sudo rsync -a /home/sam/ /backups/home/", solution: "sudo mkdir -p /backups/home && sudo rsync -a /home/sam/ /backups/home/", check: H.ran(/rsync\s+-a/) } },
-    { id: "m24-l2", title: "Database backups",
-      objective: "Dump the database before it disappears.",
-      theory: T("Filesystem copies of a running database are inconsistent. Use a logical dump:",
-        "`sudo -u postgres pg_dump appdb > /backups/db/appdb-$(date +%F).sql`.",
-        "Automate it and keep daily/weekly/monthly generations."),
-      examples: [ { cmd: "sudo mkdir -p /backups/db", desc: "Prep" }, { cmd: "sudo -u postgres pg_dump appdb > /backups/db/appdb.sql", desc: "Dump" } ],
-      task: { prompt: "Dump appdb to /backups/db/appdb-2026-09-10.sql.", hint: "sudo -u postgres pg_dump appdb > /backups/db/appdb-2026-09-10.sql", solution: "sudo mkdir -p /backups/db && sudo -u postgres pg_dump appdb > /backups/db/appdb-2026-09-10.sql", check: H.all(H.file("/backups/db/appdb-2026-09-10.sql"), H.content("/backups/db/appdb-2026-09-10.sql", "database dump")) } },
     { id: "m24-l3", title: "Encrypted, deduplicated backups with restic",
       objective: "Back up with a real modern tool.",
       theory: T("`restic` deduplicates and encrypts. Init once: `restic init --repo /backups/restic`.",
@@ -904,36 +818,15 @@
       theory: T("`rclone` syncs to 70+ cloud providers. `rclone copy /backups offsite:backups` copies; `sync` makes the destination match.",
         "Use `--dry-run` first. Offsite is the '1' in 3-2-1."),
       examples: [ { cmd: "rclone lsd offsite:", desc: "Browse" }, { cmd: "rclone copy /backups offsite:backups", desc: "Upload" } ],
-      task: { prompt: "Copy /backups to the offsite remote: offsite:backups.", hint: "rclone copy /backups offsite:backups", solution: "rclone copy /backups offsite:backups", check: H.ran(/rclone\s+(copy|sync)/) } },
-    { id: "m24-l6", title: "Automate backups",
-      objective: "Make backups happen without you.",
-      theory: T("A backup you run by hand gets skipped. Automate it nightly:",
-        "`echo '30 2 * * * /home/sam/backup.sh' | crontab -`",
-        "Then verify with `crontab -l` and monitor the logs."),
-      examples: [ { cmd: "echo '30 2 * * * /home/sam/backup.sh' | crontab -", desc: "Nightly" }, { cmd: "crontab -l", desc: "Verify" } ],
-      task: { prompt: "Schedule /home/sam/backup.sh to run every night at 02:30.", hint: "echo '30 2 * * * /home/sam/backup.sh' | crontab -", solution: "echo '30 2 * * * /home/sam/backup.sh' | crontab -", check: H.cron(/backup\.sh/, "30 2 * * *") } }
+      task: { prompt: "Copy /backups to the offsite remote: offsite:backups.", hint: "rclone copy /backups offsite:backups", solution: "rclone copy /backups offsite:backups", check: H.ran(/rclone\s+(copy|sync)/) } }
   ]
 },
 
 /* ============================ MODULE 25 ============================ */
 {
-  id: "m25", title: "Robust Networking, Diagnostics & Load Balancing", icon: "🛰️", hours: 3,
+  id: "m25", title: "Robust Networking, Diagnostics & Load Balancing", icon: "🛰️", hours: 2.5,
   blurb: "Diagnose networks packet-by-packet and scale with a load balancer.",
   lessons: [
-    { id: "m25-l1", title: "Interfaces, routes and DNS",
-      objective: "Read the network's map.",
-      theory: T("`ip r` shows the routing table; `ip a` shows addresses.",
-        "`resolvectl status` shows DNS servers and search domains per link; `/etc/hosts` overrides DNS locally.",
-        "No route = no connectivity, even if the address looks fine."),
-      examples: [ { cmd: "ip r", desc: "Routes" }, { cmd: "resolvectl status", desc: "DNS" } ],
-      task: { prompt: "Show the routing table and DNS resolver status.", hint: "ip r && resolvectl status", solution: "ip r && resolvectl status", check: H.ran(/ip\s+r/) } },
-    { id: "m25-l2", title: "Ports and sockets",
-      objective: "See what is listening and connected.",
-      theory: T("`ss -tulpn` lists listening TCP/UDP sockets with the owning process.",
-        "`ss -tun state established` shows active connections.",
-        "`lsof -i :PORT` names the process on a port."),
-      examples: [ { cmd: "ss -tulpn", desc: "Listening" }, { cmd: "lsof -i :80", desc: "Port owner" } ],
-      task: { prompt: "List all listening sockets with their processes.", hint: "ss -tulpn", solution: "ss -tulpn", check: H.ran(/ss\s+-[a-z]*l/) } },
     { id: "m25-l3", title: "Packet capture with tcpdump",
       objective: "Watch traffic on the wire.",
       theory: T("`sudo tcpdump -i eth0 -n port 80` captures HTTP. `-n` skips DNS lookups; `-c 5` stops after 5 packets; `-w file.pcap` saves for Wireshark.",
@@ -1038,8 +931,8 @@
 
 /* ============================ MODULE 28 ============================ */
 {
-  id: "m28", title: "Secrets Management & Security Hardening", icon: "🛡️", hours: 3.5, level: "Advanced",
-  blurb: "Find leaked secrets, use Vault, least-privilege perms, auditd and image scans.",
+  id: "m28", title: "Secrets Management & Security Hardening", icon: "🛡️", hours: 3, level: "Advanced",
+  blurb: "Find leaked secrets, use Vault, least-privilege perms, auditd.",
   lessons: [
     { id: "m28-l1", title: "Hunt for leaked secrets",
       objective: "Find credentials that should never be on disk.",
@@ -1068,21 +961,14 @@
         "`sudo auditctl -w /etc/passwd -p wa -k identity` (write+attribute on /etc/passwd, key 'identity').",
         "Query with `ausearch -k identity`. AIDE adds file-integrity baselines (`aide --init`, `aide --check`)."),
       examples: [ { cmd: "sudo auditctl -w /etc/passwd -p wa -k identity", desc: "Watch" }, { cmd: "sudo ausearch -k identity", desc: "Search" } ],
-      task: { prompt: "Add an auditd watch on /etc/passwd for write+attribute changes with key 'identity'.", hint: "sudo auditctl -w /etc/passwd -p wa -k identity", solution: "sudo auditctl -w /etc/passwd -p wa -k identity", check: function (env) { return env.m.audit.some(function (r) { return r.path === "/etc/passwd" && r.key === "identity"; }) ? ok : bad("no audit rule for /etc/passwd"); } } },
-    { id: "m28-l5", title: "Scan images for vulnerabilities",
-      objective: "Catch CVEs before they reach production.",
-      theory: T("`trivy image IMAGE` scans container images for known CVEs and misconfigurations.",
-        "Bake this into CI and fail the build above a severity threshold.",
-        "Keep base images minimal (alpine/distroless) and patch regularly."),
-      examples: [ { cmd: "trivy image nginx:latest", desc: "Scan" } ],
-      task: { prompt: "Scan the nginx:latest image for vulnerabilities with trivy.", hint: "trivy image nginx:latest", solution: "trivy image nginx:latest", check: H.ran(/trivy\s+image/) } }
+      task: { prompt: "Add an auditd watch on /etc/passwd for write+attribute changes with key 'identity'.", hint: "sudo auditctl -w /etc/passwd -p wa -k identity", solution: "sudo auditctl -w /etc/passwd -p wa -k identity", check: function (env) { return env.m.audit.some(function (r) { return r.path === "/etc/passwd" && r.key === "identity"; }) ? ok : bad("no audit rule for /etc/passwd"); } } }
   ]
 },
 
 /* ============================ MODULE 29 ============================ */
 {
-  id: "m29", title: "Observability & Alerting", icon: "🔭", hours: 3, level: "Advanced",
-  blurb: "Export metrics, validate Prometheus configs, alert rules and centralized logs.",
+  id: "m29", title: "Observability & Alerting", icon: "🔭", hours: 2.5, level: "Advanced",
+  blurb: "Export metrics, Prometheus scrape configs, alert rules, routing.",
   lessons: [
     { id: "m29-l1", title: "Export host metrics",
       objective: "Expose machine metrics for scraping.",
@@ -1105,13 +991,6 @@
         "Good alerts are symptom-based (latency, error rate) not just cause-based (CPU)."),
       examples: [ { cmd: "promtool check rules alerts.yml", desc: "Validate" } ],
       task: { prompt: "Create ~/alerts.yml with an alert rule (alert: HighLoad) and validate it with promtool.", hint: "Write rules with an 'alert:' entry, promtool check rules", solution: "printf 'groups:\\n  - name: host\\n    rules:\\n      - alert: HighLoad\\n        expr: node_load1 > 2\\n' > ~/alerts.yml && promtool check rules ~/alerts.yml", check: H.all(H.content("/home/sam/alerts.yml", "alert:"), H.ran(/promtool\s+check\s+rules/)) } },
-    { id: "m29-l4", title: "Centralized, persistent logs",
-      objective: "Keep logs across reboots and query them.",
-      theory: T("By default journald may be volatile. Make it persistent with `/var/log/journal`.",
-        "`sudo mkdir -p /var/log/journal && sudo systemctl restart systemd-journald`.",
-        "Then query historically: `journalctl --since '1 hour ago' -u nginx`."),
-      examples: [ { cmd: "sudo mkdir -p /var/log/journal", desc: "Persist" }, { cmd: "journalctl -n 5", desc: "Query" } ],
-      task: { prompt: "Enable persistent journald storage and show the last 5 journal entries.", hint: "mkdir /var/log/journal, restart systemd-journald, journalctl -n 5", solution: "sudo mkdir -p /var/log/journal && sudo systemctl restart systemd-journald && journalctl -n 5", check: H.all(H.dir("/var/log/journal"), H.ran(/journalctl\s+-n/)) } },
     { id: "m29-l5", title: "Alertmanager routing",
       objective: "Route alerts to receivers and validate the config.",
       theory: T("Alertmanager deduplicates and routes alerts to receivers (email, Slack, PagerDuty).",
@@ -1124,8 +1003,8 @@
 
 /* ============================ MODULE 30 ============================ */
 {
-  id: "m30", title: "Capacity Planning & Performance Tuning", icon: "📐", hours: 3.5, level: "Advanced",
-  blurb: "Baseline throughput, profile hot code, benchmark disk/CPU, tune limits.",
+  id: "m30", title: "Capacity Planning & Performance Tuning", icon: "📐", hours: 3, level: "Advanced",
+  blurb: "Baseline throughput, benchmark disk/CPU, tune limits, plan.",
   lessons: [
     { id: "m30-l1", title: "Baseline throughput and headroom",
       objective: "Measure RPS and the CPU cost of serving it.",
@@ -1134,13 +1013,6 @@
         "Plan for peak, not average. Keep 30-50% headroom for bursts and failover."),
       examples: [ { cmd: "ab -n 2000 -c 50 http://localhost/", desc: "Load" }, { cmd: "mpstat 1 3", desc: "CPU" } ],
       task: { prompt: "Run a 2000-request baseline and sample CPU with mpstat during it.", hint: "ab -n 2000 -c 50 http://localhost/ && mpstat 1 3", solution: "ab -n 2000 -c 50 http://localhost/ && mpstat 1 3", check: H.all(H.ran(/ab\b/), H.ran(/mpstat/)) } },
-    { id: "m30-l2", title: "Profile hot code with perf",
-      objective: "Find where cycles are actually spent.",
-      theory: T("`perf stat CMD` counts cycles/instructions; `perf record -g -p PID` samples a running process; `perf report` shows hotspots.",
-        "Optimise the top frame, not your guess. `perf top` is a live view.",
-        "Flame graphs come from `perf record` + `--call-graph dwarf`."),
-      examples: [ { cmd: "sudo perf stat ls /etc", desc: "Counters" }, { cmd: "sudo perf top", desc: "Live" } ],
-      task: { prompt: "Profile the `ls /etc` command with perf stat.", hint: "sudo perf stat ls /etc", solution: "sudo perf stat ls /etc", check: H.ran(/perf\s+stat/) } },
     { id: "m30-l3", title: "Benchmark storage and CPU",
       objective: "Quantify disk and compute capacity.",
       theory: T("`fio` measures disk IOPS/throughput with realistic patterns; `sysbench cpu run` measures compute.",
@@ -1167,6 +1039,29 @@
 
   ];
 
+  /* ==================== 4-ACT STRUCTURE (Part 1) ====================
+   * Learn path: 30 modules grouped into 4 completable Acts.
+   * Drill Bank (4 Boss Fights, one per Act) lives separately — reviews
+   * are out of the main flow. curriculum-extra.js is archived on disk.
+   * Order note: M17/M18 (bootstrap/packages) run BEFORE M09 in Act 2 —
+   * you bootstrap a box before you network/debug it — even though the
+   * physical array below still lists M09..M16 first (reorder lands in
+   * Part 2 with the trims; UI follows ACTS order, not array order).
+   * ================================================================== */
+  var ACTS = [
+    { id: "act1", title: "Act 1 · Survive the Box", payoff: "You can live on any Linux server", modules: ["m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08"] },
+    { id: "act2", title: "Act 2 · Operate & Connect", payoff: "Fresh VPS to working + debuggable", modules: ["m17", "m18", "m09", "m10", "m11", "m12", "m13"] },
+    { id: "act3", title: "Act 3 · Ship It", payoff: "First full deploy — celebration moment", modules: ["m14", "m15", "m16", "m19", "m20"] },
+    { id: "act4", title: "Act 4 · Survive Production", payoff: "Keep it up at 2am — on-call ready", modules: ["m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30"] }
+  ];
+
+  function actOf(modId) {
+    for (var i = 0; i < ACTS.length; i++) if (ACTS[i].modules.indexOf(modId) !== -1) return ACTS[i];
+    return null;
+  }
+
   global.CURRICULUM = CURRICULUM;
+  global.ACTS = ACTS;
+  global.actOf = actOf;
   global.CurriculumHelpers = { H: H, T: T };
 })(typeof window !== "undefined" ? window : globalThis);

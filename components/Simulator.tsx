@@ -9,7 +9,8 @@ const SCRIPTS = [
   "/js/commands.js",
   "/js/shell.js",
   "/js/curriculum.js",
-  "/js/curriculum-extra.js",
+  // "/js/curriculum-extra.js", // ARCHIVED (Part 1): 91 deepening + 72 review lessons hidden from UI, file kept on disk
+  "/js/drillbank.js", // Drill Bank: 4 optional Boss Fights (never block Next, excluded from 118-task total)
   "/js/tips.js",
   "/js/app.js"
 ];
